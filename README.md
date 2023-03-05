@@ -5,34 +5,23 @@ My first approach is to use it for machine learning: Distributed training, deplo
 All development is done on a seperate machine and is pushed up to the local container registry or via SSH.
 
 
-TODO: UPDATE THE TOC
-- [k8s-cluster](#k8s-cluster)
-  * [My setup](#my-setup)
-    + [Tools](#tools)
-    + [Master (Control-plane)](#master--control-plane-)
-    + [Node 1](#node-1)
-    + [Node 2 (temporary)](#node-2--temporary-)
-  * [Install master node](#install-master-node)
-  * [Ubuntu-server specific:](#ubuntu-server-specific-)
-    + [Mark manual work](#mark-manual-work)
-  * [Install worker node](#install-worker-node)
-  * [Start up](#start-up)
-  * [Extras](#extras)
-    + [SSH colorscheme](#ssh-colorscheme)
+__TODO: UPDATE THE TOC__
+__TODO: Apply secure connections, TLS between nodes__
+__TODO: Set up local image registry__
 
 ## My setup
 ### Tools
-> Ubuntu server 22.04\
-> Manjaro 22.04\
-> Kubectl\
-> Kubeadm\
-> CRI-O (CRI)\
-> crun \
-> Flannel (CNI)\
-> Docker (Develope and registry)\
-> Neovim
+- Ubuntu server 22.04\
+- Manjaro 22.04\
+- Kubectl\
+- Kubeadm\
+- CRI-O (CRI)\
+- crun \
+- Flannel (CNI)\
+- Docker (Develope and registry)\
+- Neovim
 
-### Master (Control-plane)
+### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
 CPU: 64-bit Intel i3-2310M CPU @ 2.10GHz, 4 cores \
 GPU: -
@@ -40,41 +29,35 @@ RAM: 4 GB \
 DISK: 700GB, HDD (yes..)
 
 
-### Node 1
-OS Ubuntu server 22.04.2\
-CPU: \
-GPU: nVIDIA GTX 960M?\
-RAM: \
-DISK:
+### Worker Node 1
+OS: Ubuntu server 22.04.2 \
+CPU: 64-bit Intel i7-6700HQ CPU @ 2.60GHz, 8 cores \
+GPU: NVIDIA GeForce GTX 960M, 2048 MB GDDR5, 640 CUDA cores (5.0) \
+RAM: 8 GB \
+DISK: 240 GB, SSD
 
 
-### Node 2 (temporary)
-OS Ubuntu 22.04 \
+### Worker Node 2 (temporary)
+OS: Ubuntu 22.04 \
 CPU: \
 GPU: \
 RAM: \
 DISK:
 
 
-## Install master node
-## Ubuntu-server specific:
-`.bashrc`:
+## Setup All Nodes
+The following has to be done on all nodes.\
+Most of these steps and instructions have I shamelessly taken from [Kubernets](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) and various guides I've found. 
+
+Enable kernel modules
 ```
-# Kubernetes
-alias kp="kubectl get pods -A -o wide"
-alias kn="kubectl get nodes -A -o wide"
+# Enabling kernel modules (overlay and br_netfilter)
+sudo modprobe overlay
+sudo modprobe br_netfilter
 ```
-For laptop-servers, dont suspend/sleep if lid is closed:\
-Uncomment and change in file `/etc/systemd/logind.conf`:
-```
-HandleLidSwitch=ignore
-HandleLidSwitchExternalPower=ignore
-HandleLidSwitchDocked=ignore
-```
-apply changes with 
-```
-systemctl restart systemd-logind.service
-```
+
+........
+
 
 ### Mark manual work
 https://adamtheautomator.com/cri-o/
@@ -177,7 +160,31 @@ https://www.linuxtechi.com/setup-private-docker-registry-kubernetes/
 
 
 # Extras
-For development purpose here are my settings for manjaro\
+Here are some nice-to-have settings but not required.
+
+## Ubuntu-server specific:
+`.bashrc`:
+```
+# Kubernetes
+alias kp="kubectl get pods -A -o wide"
+alias kn="kubectl get nodes -A -o wide"
+```
+For laptop-servers, dont suspend/sleep if lid is closed:\
+Uncomment and change in file `/etc/systemd/logind.conf`:
+```
+HandleLidSwitch=ignore
+HandleLidSwitchExternalPower=ignore
+HandleLidSwitchDocked=ignore
+```
+apply changes with 
+```
+systemctl restart systemd-logind.service
+```
+
+
+## Manjaro setup
+This is for my development machine, which isnt part of the cluster. I use Manjaro and KDE-plasma on this one.
+
 ### SSH colorscheme
 Append or create following in file: `~/.ssh/config`
 ```
@@ -187,8 +194,15 @@ Host <alias of server>
     LocalCommand konsoleprofile ColorScheme=RedOnBlack;TabColor=#FF0000
 PermitLocalCommand yes
 ```
+The above will change the terminal color scheme when connecting to the set host. However, it will not change back. To get around that I set it back by masking `ssh` as a function in my shell, see below.\
+Append this to `.zshrc`
+```
+# SSH custom colors
+# Mask as function, restore ColorScheme on exit
+ssh() {/usr/bin/ssh "$@"; konsoleprofile ColorScheme=Breath  }
+```
 
-
+### Shell scripts
 Append this to `.zshrc`
 ```
 # Default
