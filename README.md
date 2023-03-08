@@ -106,15 +106,16 @@ Create a persistent volume in kubernetes. For my set up I will have this on the 
 sudo mkdir /srv/kube-data/registry
 sudo echo "NFS Storage" | sudo tee -a /srv/kube-data/registry/index.html
 ```
-Create a `nfs-pv.yaml` for kubernetes
+Create a `registry-nfs-pv-pvc.yaml` for kubernetes
 ```
+# Declare nfs volume for registry
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: nfs-pv
 spec:
   capacity:
-    storage: 10Gi
+    storage: 5Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
@@ -126,16 +127,8 @@ spec:
   nfs:
     path: /srv/kube-data/registry
     server: 192.168.1.80
-```
-Create the volume
-```
-kubectl create -f nfs-pv.yaml
-kubectl get pv
-```
-
-## Create PersistentVolumeClaim
-Create `nfs-pvc.yaml`
-```
+---
+# Declare the volume claim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -146,13 +139,74 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
 ```
 
-and claim/mount the volume on the master node
+Create and clain the volume
 ```
-kubectl create -f nfs-pvc.yaml
+kubectl create -f registry-nfs-pv-pvc.yaml
+kubectl get pv
 ```
+
+## Create registry pod & service
+This will create a pod using the docker registry image and start a service to expose it to the cluster.
+```
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: docker-registry-pod
+  labels:
+    app: registry
+spec:
+  containers:
+    - name: registry
+      image: registry:2.7.0
+      volumeMounts:
+        - name: repo-vol
+          mountPath: "/var/lib/registry"
+        - name: cert-vol
+          mountPath: "/certs"
+          readOnly: true
+        - name: auth-vol
+          mountPath: "/auth"
+          readOnly: true
+      env:
+        - name: REGISTRY_AUTH
+          value: "htpasswd"
+        - name: REGISTRY_AUTH_HTPASSWD_REALM
+          value: "Registry Realm"
+        - name: REGISTRY_AUTH_HTPASSWD_PATH
+          value: "/auth/htpasswd"
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: "/cert/tls.crt"
+        - name: REGISTRY_HTTP_TLS_KEY
+          value: "/cert/tls.key"
+  volumes:
+    - name: repo-vol
+      persistentVolumeClaim:
+        claimName: nfs-pvc
+    - name: cert-vol
+      secret:
+        secretName: cert-secret
+    - name: auth-vol
+      secret:
+        secretName: auth-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry-pod
+spec:
+  selector:
+    app: registry
+  ports:
+    - port: 5000
+      targetPort: 5000
+```
+
+
+
 continue this: \
 https://www.linuxtechi.com/configure-nfs-persistent-volume-kubernetes/ \
 https://www.linuxtechi.com/setup-private-docker-registry-kubernetes/
@@ -188,11 +242,11 @@ This is for my development machine, which isnt part of the cluster. I use Manjar
 ### SSH colorscheme
 Append or create following in file: `~/.ssh/config`
 ```
+PermitLocalCommand yes
 Host <alias of server>
     Hostname <ip of server>
     User <log in as user>
     LocalCommand konsoleprofile ColorScheme=RedOnBlack;TabColor=#FF0000
-PermitLocalCommand yes
 ```
 The above will change the terminal color scheme when connecting to the set host. However, it will not change back. To get around that I set it back by masking `ssh` as a function in my shell, see below.\
 Append this to `.zshrc`
