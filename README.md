@@ -69,8 +69,10 @@ turn off screen when lid closes
 
 ## Start up
 -initiazion script
--SSH join commands to nodes
--Run join commands from master
+-SSH join commands to nodes \
+-Run join commands from master \
+`kubectl taint nodes <name> node-role.kubernetes.io/role-` \
+`kubectl taint nodes eva node-role.kubernetes.io/control-plane-`
 
 
 # Container Registry
@@ -99,9 +101,24 @@ sudo chown root:docker /var/run/docker.sock
 sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
 sudo chmod g+rwx "$HOME/.docker" -R
 ```
+## Authentication for registry
 
-## Create PersistentVolume
-Create a persistent volume in kubernetes. For my set up I will have this on the master node.
+```
+sudo mkdir /srv/registry
+cd /srv/registry
+sudo mkdir cert auth
+sudo touch cert/tls.crt cert/tls.key
+
+openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key -out cert/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
+
+sudo touch auth/htpasswd
+sudo chmod 777 auth/htpasswd
+docker run --rm --entrypoint htpasswd registry:2.6.2 -Bbn myuser mypasswd > auth/htpasswd
+sudo chmod 644 auth/htpasswd
+```
+
+## Create PersistentVolume and Claim
+Create a persistent volume in kubernetes. For my set up I run this on the master node.
 ```
 sudo mkdir /srv/kube-data/registry
 sudo echo "NFS Storage" | sudo tee -a /srv/kube-data/registry/index.html
@@ -205,6 +222,15 @@ spec:
       targetPort: 5000
 ```
 
+Start the pod and service
+```
+kubectl create -f registry-service-pod.yaml
+```
+## Expose the registry
+Once the service is up and running. This will make sure nodes within the cluster can access it and machine outside should be able to access as well, to push in new code.
+### Expose within the cluster
+
+### Expose outside of cluster
 
 
 continue this: \
