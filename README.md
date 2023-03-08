@@ -55,7 +55,7 @@ Enable kernel modules
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
-
+Install nfs-commmon on all nodes for nfs-persistentvolume `sudo apt install nfs-common
 ........
 
 
@@ -102,7 +102,8 @@ sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
 sudo chmod g+rwx "$HOME/.docker" -R
 ```
 ## Authentication for registry
-
+Set up a TLS certificate using __openssl__ and authenticate users with __htpasswd__.
+I had some issues when letting the command auto create files so I had to pre allocate them.
 ```
 sudo mkdir /srv/registry
 cd /srv/registry
@@ -110,14 +111,27 @@ sudo mkdir cert auth
 sudo touch cert/tls.crt cert/tls.key
 
 openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key -out cert/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
+```
 
+Add user authentication to be able to use the docker registry.
+```
 sudo touch auth/htpasswd
 sudo chmod 777 auth/htpasswd
 docker run --rm --entrypoint htpasswd registry:2.6.2 -Bbn myuser mypasswd > auth/htpasswd
 sudo chmod 644 auth/htpasswd
 ```
 
+Create secretes in kubernetes to mount the certificates and password.
+```
+kubectl create secret tls cert-secret --cert=/srv/registry/cert/tls.crt --key=/srv/registry/cert/tls.key
+kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpasswd
+```
+
+
+
+
 ## Create PersistentVolume and Claim
+
 Create a persistent volume in kubernetes. For my set up I run this on the master node.
 ```
 sudo mkdir /srv/kube-data/registry
@@ -154,7 +168,7 @@ spec:
   storageClassName: nfs
   accessModes:
     - ReadWriteMany
-  resources:
+  resources: mount failed: exit statu
     requests:
       storage: 5Gi
 ```
@@ -162,7 +176,9 @@ spec:
 Create and clain the volume
 ```
 kubectl create -f registry-nfs-pv-pvc.yaml
+# Validate
 kubectl get pv
+kubectl get pvc
 ```
 
 ## Create registry pod & service
