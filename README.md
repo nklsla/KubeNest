@@ -117,7 +117,7 @@ Add user authentication to be able to use the docker registry.
 ```
 sudo touch auth/htpasswd
 sudo chmod 777 auth/htpasswd
-docker run --rm --entrypoint htpasswd registry:2.6.2 -Bbn myuser mypasswd > auth/htpasswd
+docker run --rm --entrypoint htpasswd registry:2.7.0 -Bbn myuser mypasswd > auth/htpasswd
 sudo chmod 644 auth/htpasswd
 ```
 
@@ -133,49 +133,37 @@ kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpassw
 ## Create PersistentVolume and Claim
 
 Create a persistent volume in kubernetes. For my set up I run this on the master node.
-```
-sudo mkdir /srv/kube-data/registry
-sudo echo "NFS Storage" | sudo tee -a /srv/kube-data/registry/index.html
-```
-Create a `registry-nfs-pv-pvc.yaml` for kubernetes
+In`registry-volume.yaml`
 ```
 # Declare nfs volume for registry
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-pv
+  name: docker-repo-pv
 spec:
   capacity:
     storage: 5Gi
-  volumeMode: Filesystem
   accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Recycle
-  storageClassName: nfs
-  mountOptions:
-    - hard
-    - nfsvers=4.1
-  nfs:
-    path: /srv/kube-data/registry
-    server: 192.168.1.80
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp/registry
 ---
 # Declare the volume claim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-pvc
+  name: docker-repo-pvc
 spec:
-  storageClassName: nfs
   accessModes:
-    - ReadWriteMany
-  resources: mount failed: exit statu
+    - ReadWriteOnce
+  resources:
     requests:
       storage: 5Gi
 ```
 
 Create and clain the volume
 ```
-kubectl create -f registry-nfs-pv-pvc.yaml
+kubectl create -f registry-volume.yaml
 # Validate
 kubectl get pv
 kubectl get pvc
@@ -199,7 +187,7 @@ spec:
         - name: repo-vol
           mountPath: "/var/lib/registry"
         - name: cert-vol
-          mountPath: "/certs"
+          mountPath: "/cert"
           readOnly: true
         - name: auth-vol
           mountPath: "/auth"
@@ -218,7 +206,7 @@ spec:
   volumes:
     - name: repo-vol
       persistentVolumeClaim:
-        claimName: nfs-pvc
+        claimName: docker-repo-pvc
     - name: cert-vol
       secret:
         secretName: cert-secret
@@ -236,6 +224,7 @@ spec:
   ports:
     - port: 5000
       targetPort: 5000
+      protocol: TCP
 ```
 
 Start the pod and service
