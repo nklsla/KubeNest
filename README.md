@@ -253,6 +253,7 @@ Here are some nice-to-have settings but not required.
 # Kubernetes
 alias kp="kubectl get pods -A -o wide"
 alias kn="kubectl get nodes -A -o wide"
+alias k=kubectl
 ```
 For laptop-servers, dont suspend/sleep if lid is closed:\
 Uncomment and change in file `/etc/systemd/logind.conf`:
