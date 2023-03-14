@@ -1,0 +1,24 @@
+# Declare volume for registry
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: docker-repo-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp/repository
+---
+# Declare the volume claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: docker-repo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
