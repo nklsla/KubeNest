@@ -151,30 +151,8 @@ kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpassw
 Create a persistent volume in kubernetes. For my set up I run this on the master node.
 In`registry-volume.yaml`
 ```
-# Declare nfs volume for registry
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: docker-repo-pv
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /tmp/registry
----
-# Declare the volume claim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: docker-repo-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
+--insert storageclass
+local pv and pvc
 ```
 
 Create and clain the volume
