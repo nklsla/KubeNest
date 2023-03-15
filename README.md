@@ -5,9 +5,9 @@ My first approach is to use it for machine learning: Distributed training, deplo
 All development is done on a seperate machine and is pushed up to the local container registry or via SSH.
 
 
-__TODO: UPDATE THE TOC__
-__TODO: Apply secure connections, TLS between nodes__
-__TODO: Set up local image registry__
+__TODO: UPDATE THE TOC__\
+__TODO: Apply secure connections, TLS between nodes__\
+__TODO: Security for registry, login should be more sophisticated\
 
 ## My setup
 ### Tools
@@ -113,19 +113,35 @@ sudo touch cert/tls.crt cert/tls.key
 openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key -out cert/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
 ```
 
-Add user authentication to be able to use the docker registry.
+Add user authentication to be able to use the docker registry.\
+  __TODO: Change user and password __
 ```
 sudo touch auth/htpasswd
 sudo chmod 777 auth/htpasswd
 docker run --rm --entrypoint htpasswd registry:2.7.0 -Bbn myuser mypasswd > auth/htpasswd
 sudo chmod 644 auth/htpasswd
 ```
-
+Distribute the certifiacte
+```
+  sudo echo {“insecure-registries” : [“docker-registry:5000”]} > /etc/docker/daemon.json
+  systemctl restart snap.docker.dockerd.service
+  # systemctl restart docker 
+  sudo cp /srv/regitry/cert/tls.crt /etc/docker/certs.d/docker-registry:5000/ca.crt
+```
+Then you need to log in once to get the basic authentication\
+  local port for the host machine or inside the cluster\
+  nodePort for machines outside the cluster
+```
+  docker login docker-registry:<local port or nodePort>
+  # Username: myuser
+  # Password: mypasswd
+  ```
 Create secretes in kubernetes to mount the certificates and password.
 ```
 kubectl create secret tls cert-secret --cert=/srv/registry/cert/tls.crt --key=/srv/registry/cert/tls.key
 kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpasswd
 ```
+
 
 
 
