@@ -19,19 +19,15 @@ spec:
       - name: cert-vol
         secret:
           secretName: cert-secret
-#        hostPath:
-#         path: "/srv/registry/cert"
-#         type: Directory
       - name: auth-vol
         secret:
           secretName: auth-secret
-#       hostPath: 
-#         path: "/srv/registry/auth"
-#         type: Directory
       - name: repo-vol
-        hostPath:
-          path: "/srv/registry"
-          type: Directory
+        persistentVolumeClaim:
+          claimName: docker-repo-pvc
+#        hostPath:
+#          path: "/srv/registry"
+#          type: Directory
 
       containers:
         - image: registry:2.7.0
@@ -58,7 +54,7 @@ spec:
             mountPath: "/auth"
             readOnly: true
           - name: repo-vol
-            mountPath: "/registry"
+            mountPath: "/var/lib/registry"
 ---
 apiVersion: v1
 kind: Service

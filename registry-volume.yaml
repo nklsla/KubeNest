@@ -1,3 +1,12 @@
+---
+# Create Storage class for local persitent volume
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
 # Declare volume for registry
 apiVersion: v1
 kind: PersistentVolume
@@ -8,8 +17,19 @@ spec:
     storage: 5Gi
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: /tmp/repository
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: "/srv/kube-data/repo"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+#          - node1
+          - eva
 ---
 # Declare the volume claim
 apiVersion: v1
@@ -19,6 +39,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: local-storage
   resources:
     requests:
       storage: 5Gi
