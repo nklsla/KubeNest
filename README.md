@@ -120,6 +120,19 @@ sudo chmod 777 auth/htpasswd
 docker run --rm --entrypoint htpasswd registry:2.7.0 -Bbn myuser mypasswd > auth/htpasswd
 sudo chmod 644 auth/htpasswd
 ```
+Distribute the certifiacte
+```
+  sudo echo {“insecure-registries” : [“docker-registry:5000”]} > /etc/docker/daemon.json
+  systemctl restart snap.docker.dockerd.service
+  # systemctl restart docker 
+  sudo cp /srv/regitry/cert/tls.crt /etc/docker/certs.d/docker-registry:5000/ca.crt
+```
+Then you need to log in once to get the basic authentication
+```
+  docker login docker-registry:5000/<image name>
+  # Username: myuser
+  # Password: mypasswd
+  ```
 
 Create secretes in kubernetes to mount the certificates and password.
 ```
