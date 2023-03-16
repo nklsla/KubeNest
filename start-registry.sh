@@ -6,6 +6,9 @@ kubectl create secret docker-registry docker-registry-secret --docker-server=doc
 # Remove taint on control-plane
 kubectl taint node eva node-role.kubernetes.io/control-plane-
 
+# Add storage label on eva
+kubectl label nodes eva nodetype=storage
+
 # Create Persistent volume, claim, deployment and service
 kubectl create -f ./registry-volume.yaml
 kubectl create -f ./registry-service-deploy.yaml
