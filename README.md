@@ -45,7 +45,7 @@ RAM: \
 DISK:
 
 
-## Setup All Nodes
+# Setup All Nodes
 The following has to be done on all nodes.\
 Most of these steps and instructions have I shamelessly taken from [Kubernets](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) and various guides I've found. 
 
@@ -75,7 +75,7 @@ turn off screen when lid closes
 `kubectl taint nodes eva node-role.kubernetes.io/control-plane-`
 
 
-# Container Registry
+# Setup Container Registry
 This will setup a local container registry on the master node and make it available for all nodes in the kubernetes cluster. The workflow is to develop images using docker and push them to the registry. Then apply a kubernetes-job/deployment which will tell a node to pull the images from the registry.
 
 Will probably use docker as registry as this is what I use for development of containers.\
@@ -121,7 +121,7 @@ sudo chmod 777 auth/htpasswd
 docker run --rm --entrypoint htpasswd registry:2.7.0 -Bbn myuser mypasswd > auth/htpasswd
 sudo chmod 644 auth/htpasswd
 ```
-Distribute the certifiacte
+Distribute the certificate, this has to be done on all nodes!
 ```
   sudo echo {“insecure-registries” : [“docker-registry:5000”]} > /etc/docker/daemon.json
   systemctl restart snap.docker.dockerd.service
@@ -141,101 +141,12 @@ Create secretes in kubernetes to mount the certificates and password.
 kubectl create secret tls cert-secret --cert=/srv/registry/cert/tls.crt --key=/srv/registry/cert/tls.key
 kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpasswd
 ```
-
-
-
-
-
-## Create PersistentVolume and Claim
-
-Create a persistent volume in kubernetes. For my set up I run this on the master node.
-In`registry-volume.yaml`
-```
---insert storageclass
-local pv and pvc
-```
-
-Create and clain the volume
-```
-kubectl create -f registry-volume.yaml
-# Validate
-kubectl get pv
-kubectl get pvc
-```
-
-## Create registry pod & service
-This will create a pod using the docker registry image and start a service to expose it to the cluster.
-```
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: docker-registry-pod
-  labels:
-    app: registry
-spec:
-  containers:
-    - name: registry
-      image: registry:2.7.0
-      volumeMounts:
-        - name: repo-vol
-          mountPath: "/var/lib/registry"
-        - name: cert-vol
-          mountPath: "/cert"
-          readOnly: true
-        - name: auth-vol
-          mountPath: "/auth"
-          readOnly: true
-      env:
-        - name: REGISTRY_AUTH
-          value: "htpasswd"
-        - name: REGISTRY_AUTH_HTPASSWD_REALM
-          value: "Registry Realm"
-        - name: REGISTRY_AUTH_HTPASSWD_PATH
-          value: "/auth/htpasswd"
-        - name: REGISTRY_HTTP_TLS_CERTIFICATE
-          value: "/cert/tls.crt"
-        - name: REGISTRY_HTTP_TLS_KEY
-          value: "/cert/tls.key"
-  volumes:
-    - name: repo-vol
-      persistentVolumeClaim:
-        claimName: docker-repo-pvc
-    - name: cert-vol
-      secret:
-        secretName: cert-secret
-    - name: auth-vol
-      secret:
-        secretName: auth-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: docker-registry-pod
-spec:
-  selector:
-    app: registry
-  ports:
-    - port: 5000
-      targetPort: 5000
-      protocol: TCP
-```
-
-Start the pod and service
-```
-kubectl create -f registry-service-pod.yaml
-```
 ## Expose the registry
 Once the service is up and running. This will make sure nodes within the cluster can access it and machine outside should be able to access as well, to push in new code.
 ### Expose within the cluster
-
+From `service` manifest: Use port fomr the `port` or `targetPort`.
 ### Expose outside of cluster
-
-
-continue this: \
-https://www.linuxtechi.com/configure-nfs-persistent-volume-kubernetes/ \
-https://www.linuxtechi.com/setup-private-docker-registry-kubernetes/
-
+From `service` manifest: Use port from the `ǹodePort` setting.
 
 
 # Extras
@@ -244,13 +155,16 @@ Here are some nice-to-have settings but not required.
 ## Ubuntu-server specific:
 `.bashrc`:
 ```
+# Vim
+EDITOR=vim
+
 # Kubernetes
 alias kp="kubectl get pods -A -o wide"
 alias kn="kubectl get nodes -A -o wide"
 alias k=kubectl
   
 source <(kubectl completion bash)
-complete 
+complete -F __start_kubectl k
 ```
 For laptop-servers, dont suspend/sleep if lid is closed:\
 Uncomment and change in file `/etc/systemd/logind.conf`:
