@@ -183,7 +183,7 @@ sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://pack
 sudo apt update
 
 # Installing kubernetes and tools
-sudo apt install kubelet kubeadm kubectl
+sudo apt install kubelet=1.26.2-00 kubeadm=1.26.2-00 kubectl=1.26.2-00
 ```
 
 Optional:
