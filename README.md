@@ -18,13 +18,13 @@ __TODO: Security for registry, login should be more sophisticated\
 - CRI-O (CRI)\
 - crun \
 - Flannel (CNI)\
-- Docker (Develope and registry)\
+- Docker as local registry)\
 - Neovim
 
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
 CPU: 64-bit Intel i3-2310M CPU @ 2.10GHz, 4 cores \
-GPU: -
+GPU: - \
 RAM: 4 GB \
 DISK: 700GB, HDD (yes..)
 
@@ -162,12 +162,10 @@ EDITOR=vim
 alias kp="kubectl get pods -A -o wide"
 alias kn="kubectl get nodes -A -o wide"
 alias k=kubectl
-  
 source <(kubectl completion bash)
 complete -F __start_kubectl k
 ```
-For laptop-servers, dont suspend/sleep if lid is closed:\
-Uncomment and change in file `/etc/systemd/logind.conf`:
+For laptop-servers, turn off suspend/sleep when lid is closed by uncomment and change in file `/etc/systemd/logind.conf`
 ```
 HandleLidSwitch=ignore
 HandleLidSwitchExternalPower=ignore
