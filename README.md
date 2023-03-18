@@ -9,6 +9,8 @@ __TODO: UPDATE THE TOC__\
 __TODO: Apply secure connections, Firewall,TLS etc.__\
 __TODO: Security for registry, login should be more sophisticated__\
 __TODO: Install nfs-commmon on all nodes for nfs-persistentvolume `sudo apt install nfs-common__ \
+https://www.linuxtechi.com/configure-nfs-persistent-volume-kubernetes/ \
+https://www.linuxtechi.com/setup-nfs-server-on-centos-8-rhel-8/
 
 ## My setup
 ### Tools
