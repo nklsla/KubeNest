@@ -28,8 +28,6 @@ sudo kubeadm reset -f
 sudo systemctl restart crio.service
 # Start Kubelet
 sudo systemctl restart kubelet.service
-# sudo systemctl stop kubelet.service
-# sudo systemctl start kubelet.service
 # Initiate the control-plane
 sudo kubeadm init \
     --apiserver-advertise-address=$IPADDR  \
@@ -39,14 +37,11 @@ sudo kubeadm init \
     --ignore-preflight-errors=swap \
     --cri-socket=unix:///var/run/crio/crio.sock \
     # --container-runtime-endpoint unix:///var/run/cri-dockerd.sock \
-    # --cri-socket=unix:///var/run/cri-dockerd.sock
 
 # Copy new config
 mkdir -p $HOME/.kube
 sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
-# export KUBECONFIG=/etc/kubernetes/kubelet.conf
-# export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # Start the cluster by deploying a pod network
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
@@ -55,26 +50,40 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml
 
 # Create join-command-file for workers
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # TODO: $USER instead of hardcode
-echo cd /home/nkls/tools > ~/tools/kub-join.sh
-echo sudo systemctl restart crio.service >> ~/tools/kub-join.sh
+# TODO: Generic path
+#echo cd /home/nkls/tools > ~/tools/kub-join.sh
+#echo sudo systemctl restart crio.service >> ~/tools/kub-join.sh
 # echo sudo systemctl restart kubelet.service >> ~/tools/kub-join.sh
-echo sudo tar -xf cni_files.tar -C /etc/cni/ >> ~/tools/kub-join.sh
-echo sudo mkdir /run/systemd/resolve/ >> ~/tools/kub-join.sh
-echo sudo ln -sf /etc/resolv.conf /run/systemd/resolve/ >> ~/tools/kub-join.sh
-echo sudo kubeadm reset -f --cri-socket=unix:///var/run/crio/crio.sock >> ~/tools/kub-join.sh 
-echo -n "sudo " >> ~/tools/kub-join.sh
-join=$(kubeadm token create --print-join-command)
-echo ${join:0:13}--cri-socket=unix:///var/run/crio/crio.sock/ ${join:13} >> ~/tools/kub-join.sh
+#echo sudo tar -xf cni_files.tar -C /etc/cni/ >> ~/tools/kub-join.sh
+#echo sudo mkdir /run/systemd/resolve/ >> ~/tools/kub-join.sh
+#echo sudo ln -sf /etc/resolv.conf /run/systemd/resolve/ >> ~/tools/kub-join.sh
+#echo sudo kubeadm reset -f --cri-socket=unix:///var/run/crio/crio.sock >> ~/tools/kub-join.sh 
+#echo -n "sudo " >> ~/tools/kub-join.sh
+#join=$(kubeadm token create --print-join-command)
+#echo ${join:0:13}--cri-socket=unix:///var/run/crio/crio.sock ${join:13} >> ~/tools/kub-join.sh
 # kubeadm token create --print-join-command >> ~/tools/kub-join.sh 
 # truncate -s -1 ~/tools/kub-join.sh
 # echo "--cri-socket=unix:///var/run/crio/crio.sock/" >> ~/tools/kub-join.sh 
-echo cd - >> ~/tools/kub-join.sh
+#echo cd - >> ~/tools/kub-join.sh
+
+
+echo 'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' > $DIR/kub-join.sh
+echo sudo systemctl restart crio.service >> $DIR/kub-join.sh
+echo sudo tar -xf '$DIR'/cni_files.tar -C /etc/cni/ >> $DIR/kub-join.sh
+echo sudo mkdir /run/systemd/resolve/ >> $DIR/kub-join.sh
+echo sudo ln -sf /etc/resolv.conf /run/systemd/resolve/ >> $DIR/kub-join.sh
+echo sudo kubeadm reset -f --cri-socket=unix:///var/run/crio/crio.sock >> $DIR/kub-join.sh 
+echo -n "sudo " >> $DIR/kub-join.sh
+join=$(kubeadm token create --print-join-command)
+echo ${join:0:13}--cri-socket=unix:///var/run/crio/crio.sock ${join:13} >> $DIR/kub-join.sh
 
 # Tar net.d files 
-sudo tar -C /etc/cni -cvf cni_files.tar net.d
+sudo tar -C /etc/cni -cvf $DIR/cni_files.tar net.d
 
-# Send files to worker nodes over SSH
+# Send files to worker nodes
 while true; do
     
 ping -c1 $REMOTE_HOST 1>/dev/null 2>/dev/null
@@ -82,8 +91,11 @@ SUCCESS=$?
 
 if [ $SUCCESS -eq 0 ]
 then
-    # Copy files to worker via ssh
-    sudo scp -P 33445 /home/nkls/tools/kub-join.sh /home/nkls/tools/cni_files.tar nkls@$REMOTE_HOST:/home/nkls/tools/
+    # Send files to workers
+    scp -P 33445 $DIR/kub-join.sh $DIR/cni_files.tar nkls@$REMOTE_HOST:/home/nkls/tools/
+
+    # Execute the join-file 
+    #   ssh -t -p 33445 nkls@$REMOTE_HOST "sudo ./tools/kub-join.sh"
     break
 fi
 
@@ -95,11 +107,4 @@ read -p "Cannot reach $REMOTE_HOST, retry? (y/n)" yn
     esac
 done
 
-rm /home/niklas/tools/cni_files.tar -f
-
-# Set up for cri-o on manjaro
-# On worker:
-# set up symlink from /etc/resolv.conf -> /run/systemd/resolve/resolv.conf 
-# On master:
-# kubectl label node <node-name> node-role.kubernetes.io/
-# kubectl label node nkls-asus node-role.kubernetes.io/worker=worker
+rm $DIR/cni_files.tar -f

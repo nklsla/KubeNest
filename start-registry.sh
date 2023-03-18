@@ -10,5 +10,6 @@ kubectl taint node eva node-role.kubernetes.io/control-plane-
 kubectl label nodes eva nodetype=storage
 
 # Create Persistent volume, claim, deployment and service
-kubectl create -f ./registry-volume.yaml
-kubectl create -f ./registry-service-deploy.yaml
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+kubectl create -f $DIR/registry-volume.yaml
+kubectl create -f $DIR/registry-service-deploy.yaml
