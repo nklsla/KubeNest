@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-job
+spec:
+  template:
+    spec:
+      nodeSelector:
+        cpu: "true"
+      containers:
+      - name: gaf-test-job
+        image: docker-registry:5000/gaf-local-img
+        ports:
+        - containerPort: 5000
+      restartPolicy: Never
+      imagePullSecrets:
+      - name: docker-registry-secret
+  backoffLimit: 4

@@ -49,26 +49,12 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 # Install metric server
 kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml
 
+# Initialize workers
+echo "######################"
+echo "START WORKER NODES"
+echo "######################"
 # Create join-command-file for workers
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# TODO: $USER instead of hardcode
-# TODO: Generic path
-#echo cd /home/nkls/tools > ~/tools/kub-join.sh
-#echo sudo systemctl restart crio.service >> ~/tools/kub-join.sh
-# echo sudo systemctl restart kubelet.service >> ~/tools/kub-join.sh
-#echo sudo tar -xf cni_files.tar -C /etc/cni/ >> ~/tools/kub-join.sh
-#echo sudo mkdir /run/systemd/resolve/ >> ~/tools/kub-join.sh
-#echo sudo ln -sf /etc/resolv.conf /run/systemd/resolve/ >> ~/tools/kub-join.sh
-#echo sudo kubeadm reset -f --cri-socket=unix:///var/run/crio/crio.sock >> ~/tools/kub-join.sh 
-#echo -n "sudo " >> ~/tools/kub-join.sh
-#join=$(kubeadm token create --print-join-command)
-#echo ${join:0:13}--cri-socket=unix:///var/run/crio/crio.sock ${join:13} >> ~/tools/kub-join.sh
-# kubeadm token create --print-join-command >> ~/tools/kub-join.sh 
-# truncate -s -1 ~/tools/kub-join.sh
-# echo "--cri-socket=unix:///var/run/crio/crio.sock/" >> ~/tools/kub-join.sh 
-#echo cd - >> ~/tools/kub-join.sh
-
 
 echo 'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' > $DIR/kub-join.sh
 echo sudo systemctl restart crio.service >> $DIR/kub-join.sh
@@ -92,10 +78,12 @@ SUCCESS=$?
 if [ $SUCCESS -eq 0 ]
 then
     # Send files to workers
+    echo "Sending files.."
     scp -P 33445 $DIR/kub-join.sh $DIR/cni_files.tar nkls@$REMOTE_HOST:/home/nkls/tools/
 
     # Execute the join-file 
-    #   ssh -t -p 33445 nkls@$REMOTE_HOST "sudo ./tools/kub-join.sh"
+    echo "Run join-script on worker: $REMOTE_HOST"
+    ssh -t -p 33445 nkls@$REMOTE_HOST "sudo ./tools/kub-join.sh"
     break
 fi
 
