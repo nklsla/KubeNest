@@ -267,10 +267,19 @@ Distribute the certificate, this has to be done on all nodes!
 Then you need to log in once to get the basic authentication\
   local port for the host machine or inside the cluster\
   nodePort for machines outside the cluster
+  __NOTE: Might need a reboot/log off first time__
 ```
-  docker login docker-registry:<local port or nodePort>
-  # Username: myuser
-  # Password: mypasswd
+# Privilege to run the service
+sudo chown $USER /var/run/docker.sock
+sudo cp /etc/docker/certs.d/docker-registry:5000/ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+sudo systemctl restart snap.docker.dockerd.service
+# If not installed with snap:
+# sudo systemctl restart docker
+
+docker login docker-registry:<local port or nodePort>
+# Username: myuser
+# Password: mypasswd
   ```
 Create secretes in kubernetes to mount the certificates and password.
 ```
