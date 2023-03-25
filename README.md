@@ -47,11 +47,11 @@ DISK:
 
 
 # Setup guides
-[Setup the cluster](setup_cluster.md)\
-[Setup local docker registry](setup_registry.md)\
-[Setup extras](setup_extra.md)\
-[Setup Firewall](setup_firewall.md)\
-[Setup SSH](setup_ssh.md)
+[Setup the cluster](setup/setup_cluster.md)\
+[Setup local docker registry](setup/setup_registry.md)\
+[Setup extras](setup/setup_extra.md)\
+[Setup Firewall](setup/setup_firewall.md)\
+[Setup SSH](setup/setup_ssh.md)
 
 __TODO:__
 - Setup Persistent volume / NFS

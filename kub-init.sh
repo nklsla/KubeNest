@@ -79,11 +79,11 @@ if [ $SUCCESS -eq 0 ]
 then
     # Send files to workers
     echo "Sending files.."
-    scp -P 33445 $DIR/kub-join.sh $DIR/cni_files.tar nkls@$REMOTE_HOST:/home/nkls/tools/
+    scp -P 33445 $DIR/kub-join.sh $DIR/cni_files.tar nkls@$REMOTE_HOST:/tmp/
 
     # Execute the join-file 
     echo "Run join-script on worker: $REMOTE_HOST"
-    ssh -t -p 33445 nkls@$REMOTE_HOST "sudo ./tools/kub-join.sh"
+    ssh -t -p 33445 nkls@$REMOTE_HOST "source /tmp/kub-join.sh"
     break
 fi
 

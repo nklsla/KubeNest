@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: private-repository-k8s
+  name: local-img-repo
   labels:
-    app: private-repository-k8s
+    app: local-img-repo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: private-repository-k8s
+      app: local-img-repo
   template:
     metadata:
       labels:
-        app: private-repository-k8s
+        app: local-img-repo
     spec:
       nodeSelector:
         nodetype: storage
@@ -29,7 +29,7 @@ spec:
           claimName: docker-repo-pvc
       containers:
         - image: registry:2.7.0
-          name: private-repository-k8s
+          name: local-img-repo
           imagePullPolicy: IfNotPresent
           env:
           - name: REGISTRY_AUTH
@@ -60,7 +60,7 @@ metadata:
   name: docker-registry
 spec:
   selector:
-    app: private-repository-k8s
+    app: local-img-repo
   type: NodePort
   ports:
     - port: 5000
