@@ -50,7 +50,7 @@ You normally access your router by `192.168.1.1` or `192.168.0.1`. See the backs
 
 
 ## Connnect using public ip address
-You find your public ip [here](www.whatismyip.com) or if you're using VPN, have a look in your routers WAN-settings/status. This setup does not account for a VPN.
+You find your public ip [here](https://www.whatismyip.com) or if you're using VPN, have a look in your routers WAN-settings/status. This setup does not account for a VPN.
 ```
 ssh -p <SSH-port> <usr>@<host_WAN_ip>
 ```
