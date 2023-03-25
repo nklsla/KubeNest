@@ -50,6 +50,7 @@ DISK:
 [Setup the cluster](setup_cluster.md)\
 [Setup local docker registry](setup_registry.md)\
 [Setup extras](setup_extra.md)\
+[Setup Firewall](setup_firewall.md)\
 [Setup SSH](setup_ssh.md)
 
 __TODO:__
@@ -57,7 +58,6 @@ __TODO:__
 - Setup Prometheus
 - Setup Grafana
 - Setup Jobs/Queue/parallel
-- Setup Firewall, secure connections
 
 ## Start up
 - Run `kub-init.sh`
