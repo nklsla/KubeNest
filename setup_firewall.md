@@ -39,12 +39,16 @@ sudo ufw allow 33445/tcp
 sudo ufw allow 5000/tcp
 sudo ufw allow 31320/tcp
 
-# Opening ports for Control Plane
+# Open ports for Control Plane
 sudo ufw allow 6443/tcp
 sudo ufw allow 2379:2380/tcp
 sudo ufw allow 10250/tcp
 sudo ufw allow 10259/tcp
 sudo ufw allow 10257/tcp
+
+# Open port for kubernetes metric server (if untainted or no worker node)
+sudo ufw allow 4443/tcp
+
 
 # Different ports for different CNI's
 
@@ -65,12 +69,14 @@ Open ports on __worker nodes__
 # Open port for SSH
 sudo ufw allow 33445/tcp
 
-# Opening ports for Kubernetes
+# Open ports for Kubernetes
 sudo ufw allow 10250/tcp
 sudo ufw allow 30000:32767/tcp
 
-# Different ports for different CNI's
+# Open port for kubernetes metric server
+sudo ufw allow 4443/tcp
 
+# Different ports for different CNI's
 # Flannel
 sudo ufw allow 8285/udp
 sudo ufw allow 8472/udp
