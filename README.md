@@ -50,13 +50,13 @@ DISK:
 [Setup the cluster](setup_cluster.md)\
 [Setup local docker registry](setup_registry.md)\
 [Setup extras](setup_extra.md)\
+[Setup SSH](setup_ssh.md)
 
 __TODO:__
 - Setup Persistent volume / NFS
 - Setup Prometheus
 - Setup Grafana
 - Setup Jobs/Queue/parallel
-- Setup SSH over internet
 - Setup Firewall, secure connections
 
 ## Start up
