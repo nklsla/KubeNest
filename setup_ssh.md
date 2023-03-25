@@ -41,4 +41,16 @@ Good practise is to not log in as root but use `sudo` when required.
 PermitRootLogin no
 ```
 
+## Router port forwarding
+To allow a ssh connection and forwarding it from a public IP address, via the router to the server you need to create a port forwarding in your router. This is typically found under the `WAN-settings` or similar. Forward the `WAN` and `LAN` ports to your selected SSH-port and makesure it is forwarding to the correct local ip (the server/master/control-plane node).
+
+You normally access your router by `192.168.1.1` or `192.168.0.1`. See the backside of your router for specifications.
+
 ## Create a SSH-key
+
+
+## Connnect using public ip address
+You find your public ip [here](www.whatismyip.com) or if you're using VPN, have a look in your routers WAN-settings/status. This setup does not account for a VPN.
+```
+ssh -p <SSH-port> <usr>@<host_WAN_ip>
+```
