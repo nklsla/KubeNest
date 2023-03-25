@@ -30,9 +30,14 @@ Open ports on __master node__
 # Open the SSH-port
 sudo ufw allow 33445/tcp
 
+# WILL UNCOMMENT IF NEEDED.. Kubernetes service listens to this port thought..
 ## HTTPS connection uses port 443 (secure)
 #sudo ufw allow https
 #sudo ufw allow 443
+
+# Open ports for local docker image registry
+sudo ufw allow 5000/tcp
+sudo ufw allow 31320/tcp
 
 # Opening ports for Control Plane
 sudo ufw allow 6443/tcp
