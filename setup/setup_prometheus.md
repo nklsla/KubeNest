@@ -1,5 +1,7 @@
 # Setup Prometheus
-Steps to set up Prometheus for monitoring the cluster.
+Steps to set up Prometheus for monitoring the cluster. \
+__TODO: PERSITENTVOLUME__ \
+__TODO: CREATE INGESS CONTROL WITH SSL/TLS__  https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/ (method 3)
 
 ## Namespace & ClusterRole
 Create a namespace for monitoring, if this is not explicity set all deployments will be set into the default namespace
@@ -195,4 +197,98 @@ data:
         - source_labels: [__meta_kubernetes_service_name]
           action: replace
           target_label: kubernetes_name
+```
+and create the config map
+```
+kubectl create -f monitoring-config-map.yaml
+```
+
+## Create deployment
+Create `monitoring-prometheus-deployment.yaml`
+```
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+  namespace: monitoring
+  labels:
+    app: prometheus-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-server
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - "--storage.tsdb.retention.time=12h"
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - containerPort: 9090
+          resources:
+            requests:
+              cpu: 500m
+              memory: 500M
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            defaultMode: 420
+            name: prometheus-server-conf
+  
+        - name: prometheus-storage-volume
+          emptyDir: {}
+```
+
+and create the deployment:
+
+```
+kubectl create  -f monitoring-prometheus-deployment.yaml 
+```
+
+## Exopose Prometheus as a Service
+To access Prometheus with `IP` or `DNS` it nees to be exposed as a service. I will expose it using `nodePort` using `port 30000`.\
+Make sure to open up the port if a firewall is used on the __node__.
+```
+sudo ufw 30000/tcp
+```
+
+Create `monitoring-prometheus-service.yaml`:
+```
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: monitoring
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '9090'
+spec:
+  selector: 
+    app: prometheus-server
+  type: NodePort  
+  ports:
+    - port: 8080
+      targetPort: 9090  
+      nodePort: 30000
+```
+and create the service
+```
+kubectl create -f monitoring-prometheus-service.yaml --namespace=monitoring
 ```
