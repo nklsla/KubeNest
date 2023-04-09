@@ -11,5 +11,5 @@ kubectl label nodes eva nodetype=storage
 
 # Create Persistent volume, claim, deployment and service
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-kubectl create -f $DIR/manifest/registry-volume.yaml
-kubectl create -f $DIR/manifest/registry-service-deploy.yaml
+kubectl create -f $DIR/manifests/registry-volume.yaml
+kubectl create -f $DIR/manifests/registry-service-deploy.yaml
