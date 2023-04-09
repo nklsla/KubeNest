@@ -76,6 +76,9 @@ sudo ufw allow 30000:32767/tcp
 # Open port for kubernetes metric server
 sudo ufw allow 4443/tcp
 
+# Open port for Prometheus
+sudo ufw allow 30000/tcp
+
 # Different ports for different CNI's
 # Flannel
 sudo ufw allow 8285/udp
