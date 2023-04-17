@@ -60,3 +60,88 @@ spec:
     requests:
       storage: 5Gi
 ```
+## Setup deployment with persistent volume
+
+The following example is a deployment of the local docker image registry where the persistent volumes maps to a folder on the server, the master node `eva` in my case.\
+The `persistentVolumeClaim` is defined as a volume in the pod `spec` which then is refered to from the container volume.
+Note to self: Do not forget that the `secrets` needs to be created within the same `namespace` as the `deployment` otherwise it cannot find them. This is done when the secrets are defined.
+
+```
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-registry
+  namespace: registry
+  labels:
+    app: image-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-registry
+  template:
+    metadata:
+      labels:
+        app: image-registry
+    spec:
+      nodeSelector:
+        nodetype: storage
+      volumes:
+      - name: cert-vol
+        secret:
+          secretName: cert-secret
+      - name: auth-vol
+        secret:
+          secretName: auth-secret
+      - name: repo-vol
+        persistentVolumeClaim:
+          claimName: docker-repo-pvc
+      containers:
+        - image: registry:2.7.0
+          name: image-registry
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: REGISTRY_AUTH
+            value: "htpasswd"
+          - name: REGISTRY_AUTH_HTPASSWD_REALM
+            value: "Registry Realm"
+          - name: REGISTRY_AUTH_HTPASSWD_PATH
+            value: "/auth/htpasswd"
+          - name: REGISTRY_HTTP_TLS_CERTIFICATE
+            value: "/cert/tls.crt"
+          - name: REGISTRY_HTTP_TLS_KEY
+            value: "/cert/tls.key"
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+          - name: cert-vol
+            mountPath: "/cert"
+            readOnly: true
+          - name: auth-vol
+            mountPath: "/auth"
+            readOnly: true
+          - name: repo-vol
+            mountPath: "/var/lib/registry"
+```
+
+And the `service` has to be in the same namespace aswell
+
+```
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-registry
+  namespace: registry
+spec:
+  selector:
+    app: image-registry
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      nodePort: 31320
+  clusterIP: 10.106.32.26
+```
