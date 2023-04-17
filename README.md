@@ -47,16 +47,16 @@ DISK:
 
 
 # Setup guides
-[Setup the cluster](setup/setup_cluster.md)\
-[Setup local docker registry](setup/setup_registry.md)\
-[Setup extras](setup/setup_extra.md)\
-[Setup Firewall](setup/setup_firewall.md)\
-[Setup SSH](setup/setup_ssh.md)
+[Setup cluster](setup/setup_cluster.md)\
+[Setup local image registry](setup/setup_registry.md)\
+[Setup monitoring](setup/setup_prometheus.md)\
+[Setup persitent volumes](setup/setup_persitentvolumes.md)\
+[Setup firewall](setup/setup_firewall.md)\
+[Setup SSH](setup/setup_ssh.md)\
+[Setup extras](setup/setup_extra.md)
 
 __TODO:__
-- Setup Persistent volume / NFS
-- Setup Prometheus
-- Setup Grafana
+- Setup NFS
 - Setup Jobs/Queue/parallel
 
 ## Start up
