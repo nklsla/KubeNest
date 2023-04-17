@@ -12,4 +12,4 @@ kubectl create secret docker-registry docker-registry-secret --docker-server=doc
 
 # Create Persistent volume, claim, deployment and service
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-kubectl create -f $DIR/manifests/docker-registry
+kubectl create -f $DIR/manifests/registry

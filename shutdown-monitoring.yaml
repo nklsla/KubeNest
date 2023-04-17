@@ -1,0 +1,11 @@
+namespace=monitoring
+namespace2=kube-system
+kubectl -n $namespace delete service/prometheus service/grafana 
+kubectl -n $namespace2 delete service/kube-state-metrics
+kubectl -n $namespace delete deployments.apps/prometheus deployments.apps/grafana 
+kubectl -n $namespace2 delete deployments.apps/kube-state-metrics
+kubectl -n $namespace delete pvc/prometheus-pvc
+kubectl delete pv/prometheus-pv
+kubectl delete namespaces $namespace
+kubectl delete clusterrole prometheus
+kubectl delete clusterrolebindings.rbac.authorization.k8s.io prometheus 

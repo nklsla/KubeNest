@@ -10,11 +10,7 @@ spec:
   selector: 
     app: prometheus-server
   type: NodePort  
-#  externalIPs: 
-#    - 90.228.210.153
-  #type: LoadBalancer  
   ports:
     - port: 8080
       targetPort: 9090 
       nodePort: 30000
-      #nodePort: 33445
