@@ -3,6 +3,7 @@ Persistent volumes are objects that resides within the cluster and works as a li
 A persistent volume can be used by multiple pods via the use of persistem volume claims, which ask/claim part of all of the persisten volume object, depending on the claim size.
 
 I will illustrate with an example for the local registry using the `registry` namespace.
+For `prometheus` the permission of the local folder that is used on the host has to be changed, `sudo chown 65534:65534 /srv/monitoring/prometheus`
 ## StorageClass
 Storage classes are cluster-objects and cannot be assigned to a namespace.
 ```
