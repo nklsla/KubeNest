@@ -2,18 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: local-img-repo
+  name: image-registry
+  namespace: registry
   labels:
-    app: local-img-repo
+    app: image-registry
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: local-img-repo
+      app: image-registry
   template:
     metadata:
       labels:
-        app: local-img-repo
+        app: image-registry
     spec:
       nodeSelector:
         nodetype: storage
@@ -29,7 +30,7 @@ spec:
           claimName: docker-repo-pvc
       containers:
         - image: registry:2.7.0
-          name: local-img-repo
+          name: image-registry
           imagePullPolicy: IfNotPresent
           env:
           - name: REGISTRY_AUTH
@@ -53,18 +54,3 @@ spec:
             readOnly: true
           - name: repo-vol
             mountPath: "/var/lib/registry"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: docker-registry
-spec:
-  selector:
-    app: local-img-repo
-  type: NodePort
-  ports:
-    - port: 5000
-      targetPort: 5000
-      protocol: TCP
-      nodePort: 31320
-  clusterIP: 10.106.32.26

@@ -1,0 +1,17 @@
+# Create service for the registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-registry
+  namespace: registry
+spec:
+  selector:
+    app: image-registry
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      nodePort: 31320
+  clusterIP: 10.106.32.26
