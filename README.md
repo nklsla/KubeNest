@@ -5,14 +5,12 @@ My first approach is to use it for machine learning: Distributed training, deplo
 All development is done on a seperate machine and is pushed up to the local container registry or via SSH.
 
 
-__TODO: UPDATE THE TOC__\
-__TODO: Apply secure connections, Firewall,TLS etc.__\
 __TODO: Security for registry, login should be more sophisticated__\
 __TODO: Install nfs-commmon on all nodes for nfs-persistentvolume `sudo apt install nfs-common__ \
 https://www.linuxtechi.com/configure-nfs-persistent-volume-kubernetes/ \
 https://www.linuxtechi.com/setup-nfs-server-on-centos-8-rhel-8/ \
-__TODO: Set up Prometheus and Grafana for monitoring__ \
-https://devopscube.com/setup-prometheus-monitoring-on-kubernetes
+__TODO: Setup Grafana__
+
 
 ## Overview
 - Kubectl
