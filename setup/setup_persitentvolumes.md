@@ -4,8 +4,8 @@ A persistent volume can be used by multiple pods via the use of persistem volume
 
 I will illustrate with an example for the local registry using the `registry` namespace.
 ## StorageClass
-```
 Storage classes are cluster-objects and cannot be assigned to a namespace.
+```
 ---
 # Create Storage class for local persitent volume
 apiVersion: storage.k8s.io/v1
