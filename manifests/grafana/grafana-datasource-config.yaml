@@ -10,6 +10,7 @@ data:
         "datasources": [
             {
                "access":"proxy",
+               # "access":"server",
                 "editable": true,
                 "name": "prometheus",
                 "orgId": 1,
