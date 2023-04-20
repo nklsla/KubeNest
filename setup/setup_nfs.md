@@ -57,3 +57,36 @@ Export list for 192.168.1.80:
 /srv/nfs 192.168.1.0/24
 ```
 
+## Install Helm
+This should be for cluster wide setup
+```
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
+## install nfs-subdir-external-provisioner and Chart for NFS
+Installs `nfs-subdir-external-provisioner` and use `helm` to install/start a `Chart` for NFS.
+This will create a `storageClass` for kubernetes that will handle creation, deletion and archival of the volume. It will create a deployment as well.
+```
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=192.168.1.80 --set nfs.path=/srv/nfs --set storageClass.onDelete=true
+```
+
+## Create a PersistentVolumeClaim for NFS
+This claim can be used for `pods`.
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+name: nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 3Gi
+
+```
