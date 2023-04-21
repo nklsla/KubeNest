@@ -52,7 +52,7 @@ Distribute the certificate, this has to be done on all nodes!
   sudo echo {“insecure-registries” : [“docker-registry:5000”]} > /etc/docker/daemon.json
   systemctl restart snap.docker.dockerd.service
   # systemctl restart docker 
-  sudo cp /srv/regitry/cert/tls.crt /etc/docker/certs.d/docker-registry:5000/ca.crt
+  sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/docker-registry:5000/ca.crt
 ```
 Then you need to log in once to get the basic authentication\
   local port for the host machine or inside the cluster\
