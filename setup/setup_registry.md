@@ -36,7 +36,7 @@ cd /srv/registry
 sudo mkdir cert auth
 sudo touch cert/tls.crt cert/tls.key
 
-openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key -out cert/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
+openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key -out cert/tls.crt -subj "/CN=image-registry" -addext "subjectAltName = DNS:image-registry"
 ```
 
 Add user authentication to be able to use the docker registry.\
@@ -49,10 +49,10 @@ sudo chmod 644 auth/htpasswd
 ```
 Distribute the certificate, this has to be done on all nodes!
 ```
-  sudo echo {“insecure-registries” : [“docker-registry:5000”]} > /etc/docker/daemon.json
+  sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
   systemctl restart snap.docker.dockerd.service
   # systemctl restart docker 
-  sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/docker-registry:5000/ca.crt
+  sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
 Then you need to log in once to get the basic authentication\
   local port for the host machine or inside the cluster\
@@ -62,13 +62,13 @@ Then you need to log in once to get the basic authentication\
 ```
 # Privilege to run the service
 sudo chown $USER /var/run/docker.sock
-sudo cp /etc/docker/certs.d/docker-registry:5000/ca.crt /usr/local/share/ca-certificates/
+sudo cp /etc/docker/certs.d/image-registry:5000/ca.crt /usr/local/share/ca-certificates/
 sudo update-ca-certificates
 sudo systemctl restart snap.docker.dockerd.service
 # If not installed with snap:
 # sudo systemctl restart docker
 
-docker login docker-registry:<local port or nodePort>
+docker login image-registry:<local port or nodePort>
 # Username: myuser
 # Password: mypasswd
   ```
@@ -86,7 +86,7 @@ ff02::2 ip6-allrouters
 
 # Add below 
 10.106.32.26 image-registry
-#network ID for machines outside of cluster, i.e. 192.168.1.80:5000
+#network ID for machines outside of cluster, i.e. 192.168.1.80:<nodeport?>
 ```
 
 Create secretes in kubernetes to mount the certificates and password.
