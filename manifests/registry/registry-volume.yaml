@@ -1,13 +1,4 @@
 ---
-# Create Storage class for local persitent volume
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: local-storage
-  #namespace: registry
-provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
----
 # Declare volume for registry
 apiVersion: v1
 kind: PersistentVolume

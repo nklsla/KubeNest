@@ -1,18 +1,67 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gaf-data-pvc
+#  namespace: registry
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 15Gi
+#---
+#apiVersion: batch/v1
+#kind: Job
+#metadata:
+#  name: test-job
+##  namespace: registry
+#spec:
+#  template:
+#    spec:
+#      nodeSelector:
+#        cpu: "true"
+#      volumes:
+#        - name: data-vol
+#          persistentVolumeClaim:
+#            claimName: gaf-data-pvc
+#      containers:
+#      - name: gaf-test-job
+#        image: image-registry:5000/gaf-local-img
+#        ports:
+#        - containerPort: 5000
+#        volumeMounts:
+#        - name: data-vol
+#          mountPath: "/app/data/processed/"
+#      restartPolicy: Never
+#      imagePullSecrets:
+#      - name: image-registry-secret
+#  backoffLimit: 4
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: test-job
+  name: training-gaf-meta
+#  namespace: registry
 spec:
   template:
     spec:
       nodeSelector:
-        cpu: "true"
+        gpu: "true"
+      volumes:
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: gaf-data-pvc
       containers:
       - name: gaf-test-job
-        image: docker-registry:5000/gaf-local-img
+        image: image-registry:5000/gaf-meta-learner
         ports:
         - containerPort: 5000
+        volumeMounts:
+        - name: data-vol
+          mountPath: "/app/train"
       restartPolicy: Never
       imagePullSecrets:
-      - name: docker-registry-secret
+      - name: image-registry-secret
   backoffLimit: 4
