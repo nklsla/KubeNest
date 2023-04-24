@@ -26,3 +26,6 @@ When the `pods`:
 are marked as `complete` the deployment is ready.
 
 __Note: This assumes that there are no Nvidia drivers or CUDA installed on the worker nodes. If so, a flag has to be set when deploying the chart__
+
+## Tensorflow in container
+My GPU `GeForce 960M` is quite old and will require the `nightly` version of `tensorflow` a long with a `envionment` variable.
