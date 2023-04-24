@@ -15,7 +15,7 @@ helm repo add nvidia https://helm.ngc.nvidia.com/nvidia && helm repo update
 and deploy the chart
 
 ```
-helm install --wait --generate-name -n gpu-operator --create-namespace nvidia/gpu-operator
+helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator
 ```
 This will deploy in the `namespace` `gpu-operator`. It will take about 10 minutes to initialize and start all the pods.
 
@@ -29,3 +29,11 @@ __Note: This assumes that there are no Nvidia drivers or CUDA installed on the w
 
 ## Tensorflow in container
 My GPU `GeForce 960M` is quite old and will require the `nightly` version of `tensorflow` a long with a `envionment` variable.
+
+
+
+## Example job
+
+```
+<INSTER FROM MANIFESTS>
+```
