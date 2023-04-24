@@ -11,6 +11,38 @@ spec:
   resources:
     requests:
       storage: 15Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: training-gaf-meta
+spec:
+  template:
+    spec:
+      volumes:
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: gaf-data-pvc
+      containers:
+      - name: gaf-test-job
+        image: image-registry:5000/gaf-meta-learner-nightly
+        env:
+        - name: TF_FORCE_GPU_ALLOW_GROWTH
+          value: "true"
+        - name: TF_ENABLE_GPU_GARBAGE_COLLECTION
+          value: "true"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: data-vol
+          mountPath: "/app/train"
+      restartPolicy: Never
+      imagePullSecrets:
+      - name: image-registry-secret
+  backoffLimit: 2
 #---
 #apiVersion: batch/v1
 #kind: Job
@@ -38,30 +70,3 @@ spec:
 #      imagePullSecrets:
 #      - name: image-registry-secret
 #  backoffLimit: 4
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: training-gaf-meta
-#  namespace: registry
-spec:
-  template:
-    spec:
-      nodeSelector:
-        gpu: "true"
-      volumes:
-        - name: data-vol
-          persistentVolumeClaim:
-            claimName: gaf-data-pvc
-      containers:
-      - name: gaf-test-job
-        image: image-registry:5000/gaf-meta-learner
-        ports:
-        - containerPort: 5000
-        volumeMounts:
-        - name: data-vol
-          mountPath: "/app/train"
-      restartPolicy: Never
-      imagePullSecrets:
-      - name: image-registry-secret
-  backoffLimit: 4
