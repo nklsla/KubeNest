@@ -13,5 +13,5 @@ kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpassw
 kubectl create secret docker-registry image-registry-secret --docker-server=image-registry:5000 --docker-username=myuser --docker-password=mypasswd 
 
 # Create Persistent volume, claim, deployment and service
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-kubectl create -f $DIR/manifests/registry
+DIR_REGISTRY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+kubectl create -f $DIR_REGISTRY/../manifests/registry
