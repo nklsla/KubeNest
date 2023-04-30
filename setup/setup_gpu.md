@@ -25,7 +25,13 @@ When the `pods`:
 
 are marked as `complete` the deployment is ready.
 
-__Note: This assumes that there are no Nvidia drivers or CUDA installed on the worker nodes. If so, a flag has to be set when deploying the chart__
+### Note on drivers
+This assumes that there are no Nvidia drivers or CUDA installed on the worker nodes. If so, a flag has to be set when deploying the chart.\
+However I've encoutered some issue when letting `gpu operator` install the drivers, i.e. the pod `nvidia-driver-daemonset` cannot connect to nvidia drivers. This was resolved by installinge the drivers on the host machine. Add the flag
+```
+--set driver.enabled=false
+```
+at the end of the `helm install` command
 
 ## Tensorflow in container
 My GPU `GeForce 960M` is quite old and will require the `nightly` version of `tensorflow` a long with a `envionment` variable.
