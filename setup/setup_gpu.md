@@ -27,19 +27,74 @@ are marked as `complete` the deployment is ready.
 
 ### Note on drivers
 This assumes that there are no Nvidia drivers or CUDA installed on the worker nodes. If so, a flag has to be set when deploying the chart.\
-However I've encoutered some issue when letting `gpu operator` install the drivers, i.e. the pod `nvidia-driver-daemonset` cannot connect to nvidia drivers. This was resolved by installinge the drivers on the host machine. Add the flag
+However I've encoutered some issue when letting `gpu operator` install the drivers, i.e. the pod `nvidia-driver-daemonset` cannot connect to nvidia drivers. This was resolved by installinge the drivers on the host machine.
+```
+sudo apt install nvidia-driver-530
+```
+Add the flag
 ```
 --set driver.enabled=false
 ```
 at the end of the `helm install` command
 
 ## Tensorflow in container
-My GPU `GeForce 960M` is quite old and will require the `nightly` version of `tensorflow` a long with a `envionment` variable.
+My GPU `GeForce 960M` is quite old and will require the `nightly` version of `tensorflow` a long with a `envionment` variable. This graphic card have `compute capability 5.0`, a higher version is requered for the stable versions.
 
 
 
 ## Example job
 
 ```
-<INSTER FROM MANIFESTS>
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gaf-data-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-storage
+  resources:
+    requests:
+      storage: 15Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: training-gaf
+spec:
+  template:
+    spec:
+      volumes:
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: gaf-data-pvc
+      containers:
+      - name: gaf-test-job
+        image: image-registry:5000/gaf-train-nightly:latest
+        env:
+        - name: TF_FORCE_GPU_ALLOW_GROWTH
+          value: "true"
+        - name: TF_ENABLE_GPU_GARBAGE_COLLECTION
+          value: "true"
+        - name: "IS_CONTAINER"
+          value: "true"
+        - name: DATA_PATH
+          value: "/data/GAF"
+        #command: ["/bin/bash","-c","--"]
+        command: ["sleep"]
+        args: ["infinity"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: data-vol
+          mountPath: "/app/"
+      restartPolicy: Never
+      imagePullSecrets:
+      - name: image-registry-secret
+  backoffLimit: 2
+
 ```
