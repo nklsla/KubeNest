@@ -4,6 +4,18 @@
 This is the simplest option where a container/pods maps to a folder on a host machine. Then exposed as a service for other pods to mount as volume.\
 See [nfs.yaml](/manifests/cluster-objects/nfs.yaml)
 
+Since there is a known issue in Kubernetes for resolving volumes DNS-names a static `clusterIP` is used. Following is an example on how to mount the volume:
+```
+ volumes:
+ - name: repo-vol
+        nfs:
+          #server: nfs-service.storage.svc.cluster.local
+          server: 10.106.177.37 # Hard coded until DNS-issue fixed
+          path: "/registry"
+          readOnly: false
+```
+
+
 ## Option 2: Dynamic Provisioner
 This guide explain how to set up a dynamic provisioner-nfs server.\
 A seperate nfs-disk is needed or recommended to let all nodes access the same disk on the network/cluster.
