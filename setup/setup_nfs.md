@@ -1,4 +1,5 @@
-# Setup Network Filesystem Service
+# Setup Network Filesystem Service (Dynamic Provisioner)
+This guide explain how to set up a dynamic provisioner-nfs server.\
 A seperate nfs-disk is needed or recommended to let all nodes access the same disk on the network/cluster.
 
 ## Install and create directories
