@@ -7,7 +7,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: nfs-client
+  storageClassName: nfs-storage
   resources:
     requests:
       storage: 15Gi
@@ -15,7 +15,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: training-gaf-meta
+  name: training-gaf
 spec:
   template:
     spec:
@@ -25,12 +25,19 @@ spec:
             claimName: gaf-data-pvc
       containers:
       - name: gaf-test-job
-        image: image-registry:5000/gaf-meta-learner-nightly
+        image: image-registry:5000/gaf-train-nightly:latest
         env:
         - name: TF_FORCE_GPU_ALLOW_GROWTH
           value: "true"
         - name: TF_ENABLE_GPU_GARBAGE_COLLECTION
           value: "true"
+        - name: "IS_CONTAINER"
+          value: "true"
+        - name: DATA_PATH
+          value: "/data/GAF"
+        #command: ["/bin/bash","-c","--"]
+        command: ["sleep"]
+        args: ["infinity"]
         resources:
           limits:
             nvidia.com/gpu: 1
@@ -38,7 +45,7 @@ spec:
         - containerPort: 5000
         volumeMounts:
         - name: data-vol
-          mountPath: "/app/train"
+          mountPath: "/app/"
       restartPolicy: Never
       imagePullSecrets:
       - name: image-registry-secret

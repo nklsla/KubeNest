@@ -2,7 +2,7 @@
 kubectl taint node eva node-role.kubernetes.io/control-plane-
 
 # Add storage label on eva and create namespace
-kubectl label nodes eva nodetype=storage
+#kubectl label nodes eva nodetype=storage
 kubectl create namespace registry
 
 # Add secrets for deployment/registery

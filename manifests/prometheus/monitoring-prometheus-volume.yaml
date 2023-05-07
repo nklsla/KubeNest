@@ -1,26 +1,42 @@
----
-# Declare volume for prometheus
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: prometheus-pv
-spec:
-  capacity:
-    storage: 5Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: local-storage
-  local:
-    path: "/srv/monitoring/prometheus"
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - eva
+#---
+## Declare volume for prometheus
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: prometheus-pv
+#spec:
+#  capacity:
+#    storage: 5Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Delete
+#  storageClassName: local-storage
+#  local:
+#    path: "/srv/monitoring/prometheus"
+#  nodeAffinity:
+#    required:
+#      nodeSelectorTerms:
+#      - matchExpressions:
+#        - key: kubernetes.io/hostname
+#          operator: In
+#          values:
+#          - eva
+#---
+## Declare the volume claim
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: prometheus-pvc
+#  namespace: monitoring
+#  labels:
+#    app: prometheus-server
+#spec:
+#  accessModes:
+#    - ReadWriteOnce
+#  storageClassName: local-storage
+#  resources:
+#    requests:
+#      storage: 5Gi
 ---
 # Declare the volume claim
 apiVersion: v1
@@ -32,8 +48,8 @@ metadata:
     app: prometheus-server
 spec:
   accessModes:
-    - ReadWriteOnce
-  storageClassName: local-storage
+    - ReadWriteMany
+  storageClassName: nfs-storage
   resources:
     requests:
       storage: 5Gi

@@ -7,3 +7,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/scripts/shutdown-monitoring.sh"
 source "$DIR/scripts/shutdown-registry.sh"
 
+# Remove storage classes
+kubectl delete storageclasses.storage.k8s.io local-storage nfs-client
+
+# Remove namespaces
+kubectl delete namespaces gpu-operator

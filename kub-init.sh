@@ -26,8 +26,10 @@ sudo kubeadm reset -f
 
 # Start Cri-o
 sudo systemctl restart crio.service
+
 # Start Kubelet
 sudo systemctl restart kubelet.service
+
 # Initiate the control-plane
 sudo kubeadm init \
     --apiserver-advertise-address=$IPADDR  \

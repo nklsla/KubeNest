@@ -37,11 +37,17 @@ spec:
               mountPath: /etc/prometheus/
             - name: prometheus-storage-volume
               mountPath: /prometheus/
+              subPath: monitoring/prometheus/
       volumes:
         - name: prometheus-config-volume
           configMap:
             defaultMode: 420
             name: prometheus-server-conf
         - name: prometheus-storage-volume
-          persistentVolumeClaim:
-            claimName: prometheus-pvc
+          nfs:
+            #server: nfs-service.storage.svc.cluster.local
+            server: 10.106.177.37 # Hard coded until DNS-isse fixed
+            path: "/monitoring/prometheus"
+            readOnly: false
+          #persistentVolumeClaim:
+          #  claimName: prometheus-pvc

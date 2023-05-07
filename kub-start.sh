@@ -23,11 +23,11 @@ echo "###### Start monitoring with Prometheus & Grafana ######"
 source $DIR/scripts/start-monitoring.sh
 
 # Start NFS server
-echo ""
-echo "###### Start Network File System ######"
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=192.168.1.80 --set nfs.path=/srv/nfs --set storageClass.onDelete=true
+#echo ""
+#echo "###### Start Network File System ######"
+#helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=192.168.1.80 --set nfs.path=/srv/nfs --set storageClass.onDelete=true
 
 # Start nvidia gpu operator
 echo ""
 echo "###### Start Nvidia GPU Operator ######"
-helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator
+helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator --set driver.enabled=false

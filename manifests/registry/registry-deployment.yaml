@@ -26,8 +26,11 @@ spec:
         secret:
           secretName: auth-secret
       - name: repo-vol
-        persistentVolumeClaim:
-          claimName: docker-repo-pvc
+        nfs:
+          server: nfs-service.storage.svc.cluster.local
+          #server: 10.106.177.37 # Hard coded until DNS-isse fixed
+          path: "/registry"
+          readOnly: false
       containers:
         - image: registry:2.7.0
           name: image-registry
