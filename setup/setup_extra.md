@@ -67,4 +67,4 @@ ssh() {/usr/bin/ssh "$@"; konsoleprofile ColorScheme=Breath  }
 ```
 
 ## Add .vimrc
-[Upcoming LINK TO dotfiles-repo]()
+[See my .dotfiles-repo](https://github.com/nklsla/.dotfiles)
