@@ -1,4 +1,4 @@
-# Setup SSH for internet
+# Setup a public SSH service
 This will be the nessecary steps to have a secure SSH service exposed to the internet.
 
 __TODO: HOW TO SET UP SSH KEYS. FROM GITHUB?__
@@ -72,4 +72,5 @@ Host eva-remote
     LocalCommand konsoleprofile ColorScheme=BlueOnBlack;TabColor=#FF0000
 
 ```
-and connect with `ssh <set hostname>`
+and connect with `ssh <hostname>`.\
+__NOTE: the LocalCommand "konsoleprofile" is specific for zshell__
