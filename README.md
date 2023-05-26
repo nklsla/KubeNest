@@ -6,10 +6,8 @@ All development is done on a seperate machine and is pushed up to the local cont
 
 
 __TODO: Security for registry, login should be more sophisticated__\
-__TODO: Install nfs-commmon on all nodes for nfs-persistentvolume `sudo apt install nfs-common__ \
-https://www.linuxtechi.com/configure-nfs-persistent-volume-kubernetes/ \
-https://www.linuxtechi.com/setup-nfs-server-on-centos-8-rhel-8/ \
-__TODO: Setup Grafana__
+__TODO: Setup Grafana__\
+__TODO: Setup KubeFlow__
 
 
 ## Overview
@@ -18,7 +16,9 @@ __TODO: Setup Grafana__
 - cri-o
 - crun
 - Flannel
-- Docker as local registry
+- Local image registry (Docker)
+- Prometheus & Grafana
+- ((KubeFlow))
 
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
@@ -51,11 +51,12 @@ DISK:
 [Setup persitent volumes](setup/setup_persitentvolumes.md)\
 [Setup firewall](setup/setup_firewall.md)\
 [Setup SSH](setup/setup_ssh.md)\
-[Setup extras](setup/setup_extra.md)
+[Setup extras](setup/setup_extra.md)\
+[Setup NFS](setup/setup_nfs.md)
 
 __TODO:__
-- Setup NFS
 - Setup Jobs/Queue/parallel
+- Setup KubeFlow
 
 ## Start up
 - Run `kub-init.sh`
