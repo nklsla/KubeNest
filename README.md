@@ -11,9 +11,9 @@ __TODO: Setup KubeFlow__
 
 
 ## Overview
-- Kubectl
-- Kubeadm
-- cri-o
+- Kubectl 1.26.2-00
+- Kubeadm 1.26.2-00
+- cri-o 1.26
 - crun
 - Flannel
 - Local image registry (Docker)
