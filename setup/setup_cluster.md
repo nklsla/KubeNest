@@ -133,11 +133,8 @@ sudo apt update
 
 # Installing kubernetes and tools
 sudo apt install kubelet=1.26.2-00 kubeadm=1.26.2-00 kubectl=1.26.2-00
-```
 
-Optional:
-```
-# Lock packages to avoid potential problems with updates
+# Lock packages for version control
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
