@@ -11,6 +11,7 @@ __TODO: Setup KubeFlow__
 
 
 ## Overview
+- Kubelet 1.26.2-00
 - Kubectl 1.26.2-00
 - Kubeadm 1.26.2-00
 - cri-o 1.26
@@ -37,7 +38,7 @@ DISK: 240 GB, SSD
 
 
 ### Worker Node 2 
-OS: Ubuntu 22.04 \
+OS: \
 CPU: \
 GPU: \
 RAM: \
