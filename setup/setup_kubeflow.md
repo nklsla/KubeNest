@@ -31,7 +31,10 @@ initContainers:
   - name: data
     mountPath: /var/lib/authservice
 ```
-This will spin up a lightweigth container 
+This will spin up a lightweight container to change the permission for the folder.
+
+## Expose service
+Default settings for the web-interface is thought `ClusterIP` mode, however to make it accessable for machines outside the cluster 
 
 ## Start up
 
