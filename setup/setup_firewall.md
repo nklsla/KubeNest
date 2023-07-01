@@ -31,7 +31,6 @@ Open ports on __master node__
 sudo ufw allow 33445/tcp
 
 # WILL UNCOMMENT IF NEEDED.. Kubernetes service listens to this port thought..
-## HTTPS connection uses port 443 (secure)
 #sudo ufw allow https
 #sudo ufw allow 443
 
@@ -69,6 +68,10 @@ Open ports on __worker nodes__
 # Open port for SSH
 sudo ufw allow 33445/tcp
 
+# For https, e.g. Kubeflow
+#sudo ufw allow https
+#sudo ufw allow 443
+
 # Open ports for Kubernetes
 sudo ufw allow 10250/tcp
 sudo ufw allow 30000:32767/tcp
@@ -95,3 +98,12 @@ and restart the service
 ```
 sudo systemctl restart ufw
 ```
+
+
+## Ports for public access
+| Service | Port |
+|---|---|
+|Grafana|32000|
+|Image Registry|31320|
+|Kubeflow|31000|
+|SSH|33445|
