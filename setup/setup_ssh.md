@@ -56,6 +56,8 @@ ssh -p <SSH-port> <usr>@<host_WAN_ip>
 ```
 ## Setup a DDNS
 Create a free account on [dynu.com](https://www.dynu.com) and create a DDNS service and add your current public IP. Follow their guide under DDNS > Setup to start the `IP Update protocol` for automatic updates when the public IP changes.\
+
+## Extras
 In you `~/.ssh/config`
 ```
 PermitLocalCommand yes
