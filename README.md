@@ -6,19 +6,20 @@ All development is done on a seperate machine and is pushed up to the local cont
 
 
 __TODO: Security for registry, login should be more sophisticated__\
-__TODO: Install nfs-commmon on all nodes for nfs-persistentvolume `sudo apt install nfs-common__ \
-https://www.linuxtechi.com/configure-nfs-persistent-volume-kubernetes/ \
-https://www.linuxtechi.com/setup-nfs-server-on-centos-8-rhel-8/ \
-__TODO: Setup Grafana__
+__TODO: Setup Grafana__\
+__TODO: Setup KubeFlow__
 
 
 ## Overview
-- Kubectl
-- Kubeadm
-- cri-o
+- Kubelet 1.26.2-00
+- Kubectl 1.26.2-00
+- Kubeadm 1.26.2-00
+- cri-o 1.26
 - crun
 - Flannel
-- Docker as local registry
+- Local image registry (Docker)
+- Prometheus & Grafana
+- ((KubeFlow))
 
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
@@ -37,7 +38,7 @@ DISK: 240 GB, SSD
 
 
 ### Worker Node 2 
-OS: Ubuntu 22.04 \
+OS: \
 CPU: \
 GPU: \
 RAM: \
@@ -51,11 +52,12 @@ DISK:
 [Setup persitent volumes](setup/setup_persitentvolumes.md)\
 [Setup firewall](setup/setup_firewall.md)\
 [Setup SSH](setup/setup_ssh.md)\
-[Setup extras](setup/setup_extra.md)
+[Setup extras](setup/setup_extra.md)\
+[Setup NFS](setup/setup_nfs.md)
 
 __TODO:__
-- Setup NFS
 - Setup Jobs/Queue/parallel
+- Setup KubeFlow
 
 ## Start up
 - Run `kub-init.sh`
@@ -63,3 +65,22 @@ __TODO:__
 - SSH join commands to nodes 
 - Run join commands from master
 
+
+## Troubleshoot
+When resetting the cluster via `kubeadm reset` the `cni` might fail giving following error message on `kubectl describe pods coredns-###`:
+```
+Events:
+  Type     Reason                  Age                   From               Message
+  ----     ------                  ----                  ----               -------
+  Normal   Scheduled               12m                   default-scheduler  Successfully assigned kube-system/coredns-565d847f94-klvn6 to eva
+  Warning  FailedCreatePodSandBox  12m                   kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to create pod network sandbox k8s_coredns-565d847f94-klvn6_kube-system_86d1ad84-5581-4164-bb9d-89b3e9a71f25_0(c6ad012ffda7373a48930d806ea2068629504240f72fb35b6eed87197fff194f): error adding pod kube-system_coredns-565d847f94-klvn6 to CNI network "cbr0": plugin type="flannel" failed (add): failed to delegate add: failed to set bridge addr: "cni0" already has an IP address different from 10.244.0.1/24
+```
+Try this
+```
+sudo ip link set cni0 down
+sudo brctl delbr cni0  
+```
+if `brctl` is not "found" you have to install 
+```
+sudo apt install bridge-utils
+```

@@ -13,6 +13,7 @@ echo ">>HOSTNAME: $NODENAME"
 
 # CNI
 #Flannel
+FLANNEL_VERSION="v0.21.5"
 POD_CIDR="10.244.0.0/16"
 # Calico
 # POD_CIDR="192.168.0.0/16"
@@ -46,7 +47,8 @@ sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # Start the cluster by deploying a pod network
-kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+#kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+kubectl apply -f https://github.com/flannel-io/flannel/releases/download/${FLANNEL_VERSION}/kube-flannel.yml
 
 # Install metric server
 #kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml

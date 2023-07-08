@@ -1,4 +1,4 @@
-# Setup SSH for internet
+# Setup a public SSH service
 This will be the nessecary steps to have a secure SSH service exposed to the internet.
 
 __TODO: HOW TO SET UP SSH KEYS. FROM GITHUB?__
@@ -54,3 +54,25 @@ You find your public ip [here](https://www.whatismyip.com) or if you're using VP
 ```
 ssh -p <SSH-port> <usr>@<host_WAN_ip>
 ```
+## Setup a DDNS
+Create a free account on [dynu.com](https://www.dynu.com) and create a DDNS service and add your current public IP. Follow their guide under DDNS > Setup to start the `IP Update protocol` for automatic updates when the public IP changes.\
+
+## Extras
+In you `~/.ssh/config`
+```
+PermitLocalCommand yes
+Host eva
+    Hostname 192.168.1.80
+    Port 33445
+    User nkls
+    LocalCommand konsoleprofile ColorScheme=BlueOnBlack;TabColor=#FF0000
+
+Host eva-remote
+    Hostname nkls.kozow.com
+    Port 33445
+    User nkls
+    LocalCommand konsoleprofile ColorScheme=BlueOnBlack;TabColor=#FF0000
+
+```
+and connect with `ssh <hostname>`.\
+__NOTE: the LocalCommand "konsoleprofile" is specific for zshell__
