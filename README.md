@@ -4,22 +4,16 @@ The inital purpose for this project is to learn more about backend, servers, con
 My first approach is to use it for machine learning: Distributed training, deploy models, data processing and visualize status/progress/results.\
 All development is done on a seperate machine and is pushed up to the local container registry or via SSH.
 
-
-__TODO: Security for registry, login should be more sophisticated__\
-__TODO: Setup Grafana__\
-__TODO: Setup KubeFlow__
-
-
 ## Overview
-- Kubelet 1.26.2-00
-- Kubectl 1.26.2-00
-- Kubeadm 1.26.2-00
+- Kubelet 1.25.10-00
+- Kubectl 1.25.10-00
+- Kubeadm 1.25.10-00
 - cri-o 1.26
 - crun
 - Flannel
+- KubeFlow 1.7
 - Local image registry (Docker)
 - Prometheus & Grafana
-- ((KubeFlow))
 
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
@@ -55,18 +49,21 @@ DISK:
 [Setup extras](setup/setup_extra.md)\
 [Setup NFS](setup/setup_nfs.md)
 
-__TODO:__
-- Setup Jobs/Queue/parallel
-- Setup KubeFlow
+
 
 ## Start up
-- Run `kub-init.sh`
--- Assign node ips and send `kub-join.sh`
-- SSH join commands to nodes 
-- Run join commands from master
+- Run `kub-init.sh` to initialize the cluster to its bare minimum, including workers
+- Start other services
+  - Kubeflow
+  - GPU-operator
+  - NFS service
+  - Docker image registry
+  - Prometheus
+  - Grafana
 
 
 ## Troubleshoot
+Issue for `kubernetes 1.25.10-00`: \
 When resetting the cluster via `kubeadm reset` the `cni` might fail giving following error message on `kubectl describe pods coredns-###`:
 ```
 Events:
