@@ -27,8 +27,8 @@ spec:
           secretName: auth-secret
       - name: repo-vol
         nfs:
-          server: nfs-service.storage.svc.cluster.local
-          #server: 10.106.177.37 # Hard coded until DNS-isse fixed
+          #server: nfs-service.storage.svc.cluster.local
+          server: 10.106.177.37 # Hard coded until DNS-issue fixed
           path: "/registry"
           readOnly: false
       containers:

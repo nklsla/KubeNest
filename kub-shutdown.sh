@@ -1,5 +1,5 @@
 # Shutdown helm deployments
-helm delete nfs-subdir-external-provisioner
+#helm delete nfs-subdir-external-provisioner
 helm delete gpu-operator -n gpu-operator
 
 # Shutdown monitoring and docker registry

@@ -1,0 +1,133 @@
+#
+#NAMESPACE      NAME              STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+#istio-system   authservice-pvc   Pending                                                     2m26s
+#kubeflow       katib-mysql       Pending                                                     2m26s
+#kubeflow       minio-pvc         Pending                                                     2m26s
+#kubeflow       mysql-pv-claim    Pending                                                     2m26s
+# Create persistent volumnes for Kubeflow
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubeflow-katib-pv
+spec:
+  capacity:
+    storage: 15Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default-storage
+  local:
+    #path: "/srv/kubeflow/katib"
+    path: "/srv/kubeflow"
+  claimRef: 
+    name: katib-mysql
+    namespace: kubeflow
+  nodeAffinity:
+      required:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - nkls-asus
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubeflow-authservice-pv
+spec:
+  capacity:
+    storage: 15Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default-storage
+  local:
+    #path: "/srv/kubeflow/authservice"
+    path: "/srv/kubeflow"
+  claimRef: 
+    name: authservice-pvc
+    namespace: istio-system
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - nkls-asus
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubeflow-mysql-pv
+spec:
+  capacity:
+    storage: 25Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default-storage
+  local:
+    path: "/srv/kubeflow/mysql"
+    #path: "/srv/kubeflow"
+  claimRef:
+    name: mysql-pv-claim
+    namespace: kubeflow
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - nkls-asus
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubeflow-minio-pv
+spec:
+  capacity:
+    storage: 25Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default-storage
+  local:
+    #path: "/srv/kubeflow/minio"
+    path: "/srv/kubeflow"
+  claimRef:
+    name: minio-pvc
+    namespace: kubeflow
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - nkls-asus
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubeflow-notebook-1
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default-storage
+  local:
+    path: "/srv/kubeflow/notebooks"
+  nodeAffinity:
+      required:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - nkls-asus

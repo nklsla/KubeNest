@@ -4,6 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Create cluster wide objects
 echo ""
 echo "###### Start cluster objects ######"
+kubectl create namespace storage
 kubectl create -f $DIR/manifests/cluster-objects/
 
 # Label nodes
@@ -30,4 +31,5 @@ source $DIR/scripts/start-monitoring.sh
 # Start nvidia gpu operator
 echo ""
 echo "###### Start Nvidia GPU Operator ######"
-helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator --set driver.enabled=false
+source $DIR/scripts/start-gpu-operator.sh
+#helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator --set driver.enabled=false

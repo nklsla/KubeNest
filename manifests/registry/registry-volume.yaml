@@ -1,26 +1,4 @@
-#---
-## Declare volume for registry
-#apiVersion: v1
-#kind: PersistentVolume
-#metadata:
-#  name: docker-repo-pv
-#spec:
-#  capacity:
-#    storage: 5Gi
-#  accessModes:
-#    - ReadWriteOnce
-#  persistentVolumeReclaimPolicy: Delete
-#  storageClassName: local-storage
-#  local:
-#    path: "/srv/kube-data/repo"
-#  nodeAffinity:
-#    required:
-#      nodeSelectorTerms:
-#      - matchExpressions:
-#        - key: kubernetes.io/hostname
-#          operator: In
-#          values:
-#          - eva
+# This this will be needed if dynamic provision is used.
 #---
 ## Declare the volume claim
 #apiVersion: v1
@@ -32,24 +10,8 @@
 #    app: image-registry
 #spec:
 #  accessModes:
-#    - ReadWriteOnce
-#  storageClassName: local-storage
+#    - ReadWriteMany
+#  storageClassName: nfs-storage
 #  resources:
 #    requests:
 #      storage: 5Gi
----
-# Declare the volume claim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: docker-repo-pvc
-  namespace: registry
-  labels:
-    app: image-registry
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: nfs-storage
-  resources:
-    requests:
-      storage: 5Gi
