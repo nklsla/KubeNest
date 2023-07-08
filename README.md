@@ -47,7 +47,8 @@ DISK:
 [Setup firewall](setup/setup_firewall.md)\
 [Setup SSH](setup/setup_ssh.md)\
 [Setup extras](setup/setup_extra.md)\
-[Setup NFS](setup/setup_nfs.md)
+[Setup NFS](setup/setup_nfs.md)\
+[Setup Kubeflow](setup/setup_kubeflow.md)
 
 
 
