@@ -34,7 +34,12 @@ initContainers:
 This will spin up a lightweight container to change the permission for the folder.
 
 ## Expose service
-Default settings for the web-interface is thought `ClusterIP` mode, however to make it accessable for machines outside the cluster 
+Default settings for the web-interface is thought `ClusterIP` mode, however to make it accessable for machines outside the cluster the `istio-ingressgateway` service will be changed to `NodePort` and a port `31000` will be specified. Also the `kubeflow-gateway` will be changed to redirect `http` calls to `https` and open upp the `https`-port. 
+
+A self signing certificate manager is also setup due to `https`. See [patches](../manifests/kubeflow/patches) for more details.
+
+
+Kubeflow will be access via the browser at `https://<node-local-ip>:31000`.
 
 ## Start up
 
