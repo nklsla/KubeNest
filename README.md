@@ -1,19 +1,19 @@
 # k8s-cluster
-My home-setup of a local kubernetes cluster and container registry.\
-The inital purpose for this project is to learn more about backend, servers, containers and container orcherstration.\
-My first approach is to use it for machine learning: Distributed training, deploy models, data processing and visualize status/progress/results.\
-All development is done on a seperate machine and is pushed up to the local container registry or via SSH.
+A home-setup of a local kubernetes cluster and container registry.\
+The inital purpose for this project is to __learn__ more about backend, servers, containers, container orcherstration and MLOps.\
 
 ## Overview
-- Kubelet 1.25.10-00
-- Kubectl 1.25.10-00
-- Kubeadm 1.25.10-00
+The cluster is composed by the following componentes
+- Kubelet 1.25.10
+- Kubectl 1.25.10
+- Kubeadm 1.25.10
 - cri-o 1.26
 - crun
 - Flannel
-- KubeFlow 1.7
-- Local image registry (Docker)
-- Prometheus & Grafana
+- [KubeFlow 1.7](manifests/kubeflow/manifests)
+- Docker local image registry
+- Prometheus
+- Grafana
 
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
