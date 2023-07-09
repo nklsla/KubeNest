@@ -1,20 +1,27 @@
 #!/bin/bash
 # Worker nodes
-REMOTE_HOST=192.168.1.102
+SSH_PORT=33445
+WORKER_NODES_IP=("192.168.1.102" "192.168.1.90")
+WORKER_NODES_USER=("nkls" "niklas")
 
 # Get local info
-IPADDR="192.168.1.80"
-# IPADDR=$(nmcli device show | grep IP4.ADDRESS | head -1 | awk '{print $2}' | rev | cut -c 4- | rev)
+eIPADDR=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
 NODENAME=$(hostname -s)
+echo "#######################"
+echo "CONTROL-PLANE LOCAL IP"
+echo
+echo ">HOSTNAME: $NODENAME"
+echo ">IP ADDRESS: $IPADDR"
+echo "#######################"
+
+# Add ip to arg
 export KUBELET_EXTRA_ARGS=--node-ip=$IPADDR
-# echo ">>AUTOMATIC IP FOUND:"
-echo ">>IP ADDRESS: $IPADDR"
-echo ">>HOSTNAME: $NODENAME"
 
 # CNI
 #Flannel
 FLANNEL_VERSION="v0.21.5"
 POD_CIDR="10.244.0.0/16"
+
 # Calico
 # POD_CIDR="192.168.0.0/16"
 
@@ -47,16 +54,15 @@ sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # Start the cluster by deploying a pod network
-#kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 kubectl apply -f https://github.com/flannel-io/flannel/releases/download/${FLANNEL_VERSION}/kube-flannel.yml
 
-# Install metric server
-#kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml
-
 # Initialize workers
-echo "######################"
-echo "START WORKER NODES"
-echo "######################"
+echo
+echo
+echo
+echo "########################################"
+echo "  CREATE JOIN-SCRIPT FOR WORKER NODES"
+echo "########################################"
 # Create join-command-file for workers
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -74,29 +80,41 @@ echo ${join:0:13}--cri-socket=unix:///var/run/crio/crio.sock ${join:13} >> $DIR/
 sudo tar -C /etc/cni -cvf $DIR/cni_files.tar net.d
 
 # Send files to worker nodes
-while true; do
-    
-ping -c1 $REMOTE_HOST 1>/dev/null 2>/dev/null
-SUCCESS=$?
+for idx in "${!WORKER_NODES_IP[@]}"
+do
 
-if [ $SUCCESS -eq 0 ]
-then
-    # Send files to workers
-    echo "Sending files.."
-    scp -P 33445 $DIR/kub-join.sh $DIR/cni_files.tar nkls@$REMOTE_HOST:/tmp/
+  while true; do
+      
+  ping -c3 ${WORKER_NODES_IP[$idx]} 1>/dev/null 2>/dev/null
+  SUCCESS=$?
 
-    # Execute the join-file 
-    echo "Run join-script on worker: $REMOTE_HOST"
-    ssh -t -p 33445 nkls@$REMOTE_HOST "source /tmp/kub-join.sh"
-    break
-fi
+  if [ $SUCCESS -eq 0 ]
+  then
+      echo "######################"
+      echo " SUCCESFULLY PINGED "
+      echo "${WORKER_NODES_IP[$idx]}"
+      echo "######################"
+      # Send files to workers
+      echo "Sending files.."
+      scp -P $SSH_PORT $DIR/kub-join.sh $DIR/cni_files.tar ${WORKER_NODES_USER[$idx]}@${WORKER_NODES_IP[$idx]}:/tmp/
 
-read -p "Cannot reach $REMOTE_HOST, retry? (y/n)" yn
-    case $yn in
-        [Yy]* ) continue;;
-        [Nn]* ) break;;
-        * ) echo "Please answer yes or no.";;
-    esac
+      # Execute the join-file 
+      echo "Run join-script on worker: $REMOTE_HOST"
+      ssh -t -p $SSH_PORT  ${WORKER_NODES_USER[$idx]}@${WORKER_NODES_IP[$idx]} "source /tmp/kub-join.sh"
+      break
+  fi
+
+  read -p "Cannot reach ${WORKER_NODES_IP[$idx]}, retry? (y/n)" yn
+      case $yn in
+          [Yy]* ) continue;;
+          [Nn]* ) break;;
+          * ) echo "Please answer yes or no.";;
+      esac
+  done
+  echo
+  echo
+  echo
+  
 done
 
 rm $DIR/cni_files.tar -f
