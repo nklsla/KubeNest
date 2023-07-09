@@ -16,13 +16,44 @@ All files are available in the official [kubeflow repository](https://github.com
 A requirement from `Kubeflow`, see [this manifest](../manifests/kubeflow/patches/storageclasses.yaml).
 
 ## Volumes
-Kubeflow will create four `persistentVolumeClaim`. Create `persistentVolume` to satisfy this.
-[LINK TO persistentvolume codes]
+Kubeflow will create `persistentVolumeClaim`s for
+- authservice
+- katib
+- minio
+- mysql
+
+Create [`persistentVolume`](../manifests/kubeflow/patches/persistentvolumes.yaml) to satisfy this.
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubeflow-<service>-pv
+spec:
+  capacity:
+    storage: 15Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default-storage
+  local:
+    path: "/srv/kubeflow/<service>"
+  claimRef: 
+    name: <service-claim>
+    namespace: kubeflow
+  nodeAffinity:
+      required:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - <node>
+```
 ## Authservice
 If the pod `authservice` cannot start due to `open /var/lib/authservice/data.db: permission denied`
 You need to change the `permissions` before the container starts in the pod.
 
-In the file: `manifests/kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml`
+In the file: [`kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml`](../manifests/kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml)
 Add:
 ```
 initContainers:
