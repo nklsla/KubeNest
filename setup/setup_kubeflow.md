@@ -13,8 +13,11 @@ All files are available in the official [kubeflow repository](https://github.com
   - `sudo mv kustomize /bin/`
 
 ## Default StoragClass
-This might not be nessecary if NFS-storage will be used..
+A requirement from `Kubeflow`, see [this manifest](../manifests/kubeflow/patches/storageclasses.yaml).
 
+## Volumes
+Kubeflow will create four `persistentVolumeClaim`. Create `persistentVolume` to satisfy this.
+[LINK TO persistentvolume codes]
 ## Authservice
 If the pod `authservice` cannot start due to `open /var/lib/authservice/data.db: permission denied`
 You need to change the `permissions` before the container starts in the pod.
