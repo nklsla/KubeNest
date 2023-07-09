@@ -140,3 +140,19 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 ## Install worker node
 
+Make sure `ssh` service is installed and enabled for autostart.
+```
+sudo apt update
+sudo apt install ssh
+
+# Start and enable the service to autostart on startup
+sudo systemctl enable ssh
+
+# Verify if started and enabled
+systemctl status ssh
+```
+
+Make sure the machine gets logged in automatically if rebooted remotely.
+- In Ubuntu desktop 22.04
+  - Settings > Users: Enable "Automatic Login"
+For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubuntu-server-specific)
