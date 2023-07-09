@@ -1,7 +1,8 @@
 # Setup UFW - Uncomplicated FireWall
+This guide gives an overview of all ports that are required for this project.
 
-Install and/or enable ufw
-
+## Install and/or enable ufw
+Install the `uncomplicated firewall`
 ```
 sudo apt install ufw -y
 sudp ufw enable
@@ -22,10 +23,15 @@ Configure the default settings:
 ```
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
+
 # Requires SSH service to be running (will allow port 22 by default)
-#sudo ufw allow ssh
+sudo ufw allow ssh
 ```
-Open ports on __master node__
+## Open ports
+
+[Kubernetes documentation](https://kubernetes.io/docs/reference/networking/ports-and-protocols/)
+
+### Control-plane
 ```
 # Open the SSH-port
 sudo ufw allow 33445/tcp
@@ -48,7 +54,6 @@ sudo ufw allow 10257/tcp
 # Open port for kubernetes metric server (if untainted or no worker node)
 sudo ufw allow 4443/tcp
 
-
 # Different ports for different CNI's
 
 # Flannel
@@ -62,7 +67,7 @@ sudo ufw allow 8472/udp
 #sudo ufw allow 2379/tcp
 ```
 
-Open ports on __worker nodes__
+### Worker nodes
 
 ```
 # Open port for SSH
@@ -93,6 +98,7 @@ sudo ufw allow 8472/udp
 #sudo ufw allow 4789/tcp
 #sudo ufw allow 2379/tcp
 ```
+
 
 and restart the service
 ```
