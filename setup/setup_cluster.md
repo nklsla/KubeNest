@@ -1,12 +1,23 @@
 
-# Setup All Nodes
+# Setup Kubernetes
 The following has to be done on all nodes.\
 Most of these steps and instructions have I shamelessly taken from [Kubernets](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) and various guides I've found. 
+
+## SSH
+First thing before installing anything; setup communication over SSH.
+[Setup SSH](setup_ssh.md): Follow *"Setup SSH service"* and _"Security changes in SSHD config"_
+
+Make sure the machine gets logged in automatically if rebooted remotely.
+- In Ubuntu desktop 22.04
+  - Settings > Users: Enable "Automatic Login"
+For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubuntu-server-specific)
+
+
 
 ## Enable kernel modules
 ```
 # Download prequsites
-sudo apt install curl
+sudo apt install -y curl ca-certificates apt-transport-https
 
 # Enabling kernel modules (overlay and br_netfilter)
 sudo modprobe overlay
@@ -31,8 +42,29 @@ sudo sysctl --system
 ## Disable swap
 This is necessary for the `kubelet`service to work properly and will allow better performance (i.e. if your machine has enough of RAM).
 
+### Manual file changes
 - Open the file `/etc/fstab`
-- Comment out the "swap" line
+- Comment out the "swapfile" line
+
+<details> 
+ <summary>Like this</summary>
+ 
+```
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# / was on /dev/nvme0n1p6 during installation
+UUID=1280b09c-bdbb-4dc9-b93f-34d6323a97da /               ext4    errors=remount-ro 0       1
+# /boot/efi was on /dev/nvme0n1p1 during installation
+UUID=184F-388A  /boot/efi       vfat    umask=0077      0       1
+#/swapfile                                 none            swap    sw              0       0
+```
+
+</details>
 
 then run following to disable swap and confirm.
 ```
@@ -48,8 +80,8 @@ cat /proc/swaps
 sudo free -m
 ```
 
-## Install the CRI
-I will use CRI-O to hot things up.
+## Install the Container Runtime Interface
+This setup uses `CRI-O` as `CRI` since it is optimized for `Kubernetes`. 
 ```
 # Creating environment variable $OS and $VERSION
 export OS=xUbuntu_22.04
@@ -74,7 +106,8 @@ sudo apt install cri-o crun
 
 ```
 
-Since I'm suing `crun`, some modifications has to be done to the cri-o config. \
+This setup will be using `crun` due to it being lightweight and better performance than `runc`, but that means some modifications have to be done to the cri-o config. \
+### In `/etc/crio/crio.conf`
 Edit `/etc/crio/crio.conf` and add following under `[crio.runtime]`:
 ```
 default_runtime = "crun"
@@ -103,6 +136,7 @@ and make sure these paths are set as below under the `[crio.network]`-section:
 
 ```
 
+### In `/etc/crio/crio.conf.d/01-crio-runc.conf`
 add this to the end of the `/etc/crio/crio.conf.d/01-crio-runc.conf`:
 ```
 [crio.runtime.runtimes.crun]
@@ -119,40 +153,24 @@ systemctl status crio
 ```
 
 ## Install Kubernetes
-Now it's time to install kubernetes!
+Now it's time to install `kubernetes`!
 
-```
-# Adding Kubernetes repository
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+Version `1.25.10-00` is used because of `kubeflow` requirements.
+Following [step 1-3 in this guide](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management)
+``` 
+# Download Google Cloud public signing key
+curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
 
-# Adding GPG key for Kubernetes repository
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+# Adding Kubernetes apt repository
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 # Update apt
 sudo apt update
 
 # Installing kubernetes and tools
-sudo apt install kubelet=1.26.2-00 kubeadm=1.26.2-00 kubectl=1.26.2-00
+sudo apt install kubelet=1.25.10-00 kubeadm=1.25.10-00 kubectl=1.25.10-00
 
 # Lock packages for version control
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
-## Install worker node
-
-Make sure `ssh` service is installed and enabled for autostart.
-```
-sudo apt update
-sudo apt install ssh
-
-# Start and enable the service to autostart on startup
-sudo systemctl enable ssh
-
-# Verify if started and enabled
-systemctl status ssh
-```
-
-Make sure the machine gets logged in automatically if rebooted remotely.
-- In Ubuntu desktop 22.04
-  - Settings > Users: Enable "Automatic Login"
-For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubuntu-server-specific)
