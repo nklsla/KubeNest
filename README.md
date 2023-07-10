@@ -9,7 +9,7 @@ The cluster is composed by the following componentes
 - Kubeadm 1.25.10
 - cri-o 1.26
 - crun
-- Flannel
+- Flannel 0.21.5
 - [KubeFlow 1.7](manifests/kubeflow/manifests)
 - Docker local image registry
 - Prometheus
