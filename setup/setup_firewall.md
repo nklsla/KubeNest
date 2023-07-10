@@ -5,7 +5,7 @@ This guide gives an overview of all ports that are required for this project.
 Install the `uncomplicated firewall`
 ```
 sudo apt install ufw -y
-sudp ufw enable
+sudo ufw enable
 ```
 
 Apply these settings to `IP 6`\
