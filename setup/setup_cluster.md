@@ -174,3 +174,5 @@ sudo apt install kubelet=1.25.10-00 kubeadm=1.25.10-00 kubectl=1.25.10-00
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
+## Set up firewall
+[See here](setup_firewall.md)
