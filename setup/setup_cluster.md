@@ -130,9 +130,10 @@ and make sure these paths are set as below under the `[crio.network]`-section:
  network_dir = "/etc/cni/net.d/"
 
 # Paths to directories where CNI plugin binaries are located.
- plugin_dirs = [
- 	"/usr/lib/cni/",
- ]
+# This part seems to cause "NetworkPluginNotReady.. Keep it commented out.
+# plugin_dirs = [
+# 	"/usr/lib/cni/",
+# ]
 
 ```
 
