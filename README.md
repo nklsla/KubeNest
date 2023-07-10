@@ -34,7 +34,7 @@ DISK: 240 GB, SSD
 ### Worker Node 2 
 OS: Ubuntu desktop 22.04.2 \
 CPU: 64-bit Intel i7-10850H CPU @ 2.70GHz, 6 cores \
-GPU: NVIDIA Quadro RTX4000, 8 GB GDDR6, 2304 CUDA cores, 288 Tensor cores, 36 RT cores \
+GPU: NVIDIA Quadro RTX4000, 8192 MB GDDR6, 2304 CUDA cores, 288 Tensor cores, 36 RT cores \
 RAM: 32 GB \
 DISK: 250 GB, SSD
 
