@@ -42,7 +42,7 @@ DISK: 250 GB, SSD
 
 ![System overview](System-diagram.drawio.svg)
 <br>
-<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2FSystem-diagram.drawio.svg" target="_blank">Edit diagram in draw.io</a> 
+<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2FSystem-diagram.drawio.svg" target="_blank" rel="noopener noreferrer">Edit diagram in draw.io</a> 
 
 # Setup guides
 [Setup cluster](setup/setup_cluster.md)\
