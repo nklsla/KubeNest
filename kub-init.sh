@@ -5,7 +5,7 @@ WORKER_NODES_IP=("192.168.1.102" "192.168.1.90")
 WORKER_NODES_USER=("nkls" "niklas")
 
 # Get local info
-eIPADDR=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
+IPADDR=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
 NODENAME=$(hostname -s)
 echo "#######################"
 echo "CONTROL-PLANE LOCAL IP"
@@ -118,3 +118,6 @@ do
 done
 
 rm $DIR/cni_files.tar -f
+
+sleep 3
+kubectl get nodes
