@@ -38,6 +38,11 @@ GPU: NVIDIA Quadro RTX4000, 8192 MB GDDR6, 2304 CUDA cores, 288 Tensor cores, 36
 RAM: 32 GB \
 DISK: 250 GB, SSD
 
+# System overview
+
+![System overview](System-diagram.drawio.svg)
+<br>
+<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2FSystem-diagram.drawio.svg" target="_blank">Edit diagram in draw.io</a> 
 
 # Setup guides
 [Setup cluster](setup/setup_cluster.md)\
