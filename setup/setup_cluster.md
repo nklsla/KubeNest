@@ -29,9 +29,6 @@ For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubunt
 
 ## Enable kernel modules
 ```
-# Download prequsites
-sudo apt install -y curl ca-certificates apt-transport-https
-
 # Enabling kernel modules (overlay and br_netfilter)
 sudo modprobe overlay
 sudo modprobe br_netfilter
