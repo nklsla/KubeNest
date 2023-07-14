@@ -3,6 +3,19 @@
 The following has to be done on all nodes.\
 Most of these steps and instructions have I shamelessly taken from [Kubernets](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) and various guides I've found. 
 
+## Prerequisite
+
+Install following packages on all nodes
+```
+sudo apt update
+
+# For installing kubernets
+sudo apt install curl ca-certificates apt-transport-https
+
+# For mounting NFS-server
+sudo apt install nfs-common 
+```
+
 ## SSH
 First thing before installing anything; setup communication over SSH.
 [Setup SSH](setup_ssh.md): Follow *"Setup SSH service"* and _"Security changes in SSHD config"_
@@ -16,9 +29,6 @@ For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubunt
 
 ## Enable kernel modules
 ```
-# Download prequsites
-sudo apt install -y curl ca-certificates apt-transport-https
-
 # Enabling kernel modules (overlay and br_netfilter)
 sudo modprobe overlay
 sudo modprobe br_netfilter

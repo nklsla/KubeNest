@@ -106,10 +106,18 @@ sudo systemctl restart ufw
 ```
 
 
-## Ports for public access
+## Public ports
 | Service | Port |
 |---|---|
 |Grafana|32000|
 |Image Registry|31320|
 |Kubeflow|31000|
 |SSH|33445|
+
+## Clust local ports
+| Service | Port |
+|---|---|
+|Grafana|3000|
+|Image Registry|5000|
+|Kubeflow|-|
+
