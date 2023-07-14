@@ -8,10 +8,12 @@ metadata:
 spec:
   selector:
     app: image-registry
+#  nodeSelector:
+#    special: control-plane
   type: NodePort
   ports:
     - port: 5000
       targetPort: 5000
       protocol: TCP
-      nodePort: 31320
-  clusterIP: 10.106.32.26
+      nodePort: ${DOCKER_NODEPORT}
+  clusterIP: "${DOCKER_CLUSTER_IP}"

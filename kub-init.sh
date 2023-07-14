@@ -1,9 +1,4 @@
 #!/bin/bash
-# Worker nodes
-SSH_PORT=33445
-WORKER_NODES_IP=("192.168.1.102" "192.168.1.90")
-WORKER_NODES_USER=("nkls" "niklas")
-
 # Get local info
 IPADDR=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
 NODENAME=$(hostname -s)
@@ -19,7 +14,6 @@ export KUBELET_EXTRA_ARGS=--node-ip=$IPADDR
 
 # CNI
 #Flannel
-FLANNEL_VERSION="v0.21.5"
 POD_CIDR="10.244.0.0/16"
 
 # Calico
@@ -90,10 +84,14 @@ do
 
   if [ $SUCCESS -eq 0 ]
   then
-      echo "######################"
-      echo " SUCCESFULLY PINGED "
-      echo "${WORKER_NODES_IP[$idx]}"
-      echo "######################"
+      
+      echo "########################"
+      echo "   SUCCESFULLY PINGED "
+      echo
+      echo ">HOST: ${WORKER_NODES_USER[1]}"
+      echo ">IP:   ${WORKER_NODES_IP[1]}"
+      echo "########################"
+
       # Send files to workers
       echo "Sending files.."
       scp -P $SSH_PORT $DIR/kub-join.sh $DIR/cni_files.tar ${WORKER_NODES_USER[$idx]}@${WORKER_NODES_IP[$idx]}:/tmp/
@@ -120,4 +118,5 @@ done
 rm $DIR/cni_files.tar -f
 
 sleep 3
+echo "Verify node status"
 kubectl get nodes

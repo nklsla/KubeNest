@@ -1,6 +1,5 @@
 DIR_MONITOR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 kubectl create namespace monitoring
-kubectl create -f $DIR_MONITOR/../manifests/prometheus
-kubectl create -f $DIR_MONITOR/../manifests/kube-state-metrics
-kubectl create -f $DIR_MONITOR/../manifests/grafana
-
+for f in $DIR_REGISTRY/../manifests/prometheus/*.yaml; do kubectl create -f <(envsubst <$f); done
+for f in $DIR_REGISTRY/../manifests/kube-state-metrics/*.yaml; do kubectl create -f <(envsubst <$f); done
+for f in $DIR_REGISTRY/../manifests/grafana/*.yaml; do kubectl create -f <(envsubst <$f); done

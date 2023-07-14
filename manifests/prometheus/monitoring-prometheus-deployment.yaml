@@ -14,8 +14,8 @@ spec:
     metadata:
       labels:
         app: prometheus-server
-
     spec:
+      nodeName: "${CTLPLN_NODE}"
       containers:
         - name: prometheus
           image: prom/prometheus

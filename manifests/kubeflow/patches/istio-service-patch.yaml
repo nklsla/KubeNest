@@ -1,7 +1,7 @@
 spec:
   ports:
   - name: https
-    nodePort: 31000
+    nodePort: ${KF_ISTIO_SVC_NODEPORT}
     port: 443
     protocol: TCP
     targetPort: 8443

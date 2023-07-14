@@ -16,6 +16,13 @@ spec:
       labels:
         app: image-registry
     spec:
+      tolerations:
+      - key: special
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
       nodeSelector:
         nodetype: storage
       volumes:
@@ -27,8 +34,8 @@ spec:
           secretName: auth-secret
       - name: repo-vol
         nfs:
-          #server: nfs-service.storage.svc.cluster.local
-          server: 10.106.177.37 # Hard coded until DNS-issue fixed
+          #server: nfs-service.storage.svc.cluster.local # Hard code ip due to bug in DNS
+          server: "${NFS_CLUSTER_IP}"
           path: "/registry"
           readOnly: false
       containers:
