@@ -88,8 +88,8 @@ do
       echo "########################"
       echo "   SUCCESFULLY PINGED "
       echo
-      echo ">HOST: ${WORKER_NODES_USER[1]}"
-      echo ">IP:   ${WORKER_NODES_IP[1]}"
+      echo ">HOST: ${WORKER_NODES_USER[$idx]}"
+      echo ">IP:   ${WORKER_NODES_IP[$idx]}"
       echo "########################"
 
       # Send files to workers

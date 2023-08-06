@@ -1,14 +1,27 @@
-# Shutdown helm deployments
-#helm delete nfs-subdir-external-provisioner
-#helm delete gpu-operator -n gpu-operator
-
-# Shutdown monitoring and docker registry
+# Shutdown all services
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-#echo "$DIR"/scripts/shutdown*
+
 for f in "$DIR"/scripts/shutdown*;do
-source $f
+  if ! echo "$f" | grep -qE '(nfs|metrics)';then
+    echo ""
+    echo "###### Running $(basename $f)  ######"
+    source $f
+  fi
 done
 
+echo ""
+echo "###### Shutdown Storage  ######"
+for f in "$DIR"/scripts/shutdown*;do
+  if echo "$f" | grep -qE 'nfs';then
+    echo ""
+    echo "###### Running $(basename $f)  ######"
+    source $f
+  fi
+done
+
+# Shutdown metrics server
+scource $DIR/scripts/shutdown-metrics-server.sh
+
 # Remove storage classes
-#kubectl delete storageclasses.storage.k8s.io local-storage nfs-client
+kubectl delete storageclasses.storage.k8s.io default-storage nfs-client
 

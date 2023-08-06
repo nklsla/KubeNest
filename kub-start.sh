@@ -1,5 +1,4 @@
 # Define variables
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Start up order
 # -1. Start up cluster
@@ -16,44 +15,43 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # 6. Kubeflow
 
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Set environment variables from config
+source $DIR/scripts/start-cfg.sh
 
+echo ""
+echo "###### Label Nodes  ######"
+kubectl label nodes ${CTLPLN_NODE} nodetype=storage
+kubectl label nodes ${WORKER_NODE_1} node-role.kubernetes.io/worker=worker
+kubectl label nodes ${WORKER_NODE_2} node-role.kubernetes.io/worker=worker
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo ""
+echo "###### Start Metrics Server ######"
+kubectl create -f <(envsubst <$DIR/manifests/cluster-objects/metric-server.yaml)
 
-# Create cluster wide objects
-#echo ""
-#echo "###### Start cluster objects ######"
-#kubectl create namespace storage
-#kubectl create -f <(envsubst <$DIR/manifests/cluster-objects/)
-#
-## Label nodes
-#echo ""
-#echo "###### Label nodes  ######"
-#kubectl label nodes ${CTLPLN_NODE} nodetype=storage
-#kubectl label nodes ${WORKER_NODE_1} node-role.kubernetes.io/worker=worker
-#kubectl label nodes ${WORKER_NODE_2} node-role.kubernetes.io/worker=worker
-#
-## Start docker registry
-#echo ""
-#echo "###### Start docker registry ######"
-#source $DIR/scripts/start-registry.sh
-#
-## Start Promoetheus and Grafana
-#echo ""
-#echo "###### Start monitoring with Prometheus & Grafana ######"
-#source $DIR/scripts/start-monitoring.sh
-#
-## Start NFS server
-##echo ""
-##echo "###### Start Network File System ######"
+echo ""
+echo "###### Start NFS Server ######"
+kubectl create namespace storage
+kubectl create -f <(envsubst <$DIR/manifests/cluster-objects/nfs.yaml)
+
+echo ""
+echo "###### Start NFS Subdir External Provisioner  ######"
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=${NFS_CLUSTER_IP} --set nfs.path=/subdir-ext --set storageClass.onDelete=true
-#
-## Start nvidia gpu operator
-#echo ""
-#echo "###### Start Nvidia GPU Operator ######"
-#source $DIR/scripts/start-gpu-operator.sh
-##helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator --set driver.enabled=false
-#
-## Start Kubeflow
-#echo ""
-#echo "###### Start Kubeflow ######"
-#source $DIR/scripts/start-kubeflow.sh 
+
+echo ""
+echo "###### Start Docker Registry ######"
+source $DIR/scripts/start-registry.sh
+
+echo ""
+echo "###### Start Monitoring: Prometheus & Grafana ######"
+source $DIR/scripts/start-monitoring.sh
+
+echo ""
+echo "###### Start Nvidia GPU Operator ######"
+source $DIR/scripts/start-gpu-operator.sh
+helm install --wait gpu-operator -n gpu-operator --create-namespace nvidia/gpu-operator --set driver.enabled=false
+
+echo ""
+echo "###### Start Kubeflow ######"
+source $DIR/scripts/start-kubeflow.sh 
