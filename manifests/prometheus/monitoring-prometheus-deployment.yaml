@@ -46,7 +46,7 @@ spec:
         - name: prometheus-storage-volume
           nfs:
             #server: nfs-service.storage.svc.cluster.local
-            server: 10.106.177.37 # Hard coded until DNS-isse fixed
+            server: "${NFS_CLUSTER_IP}" # Hard coded until DNS-isse fixed
             path: "/monitoring/prometheus"
             readOnly: false
           #persistentVolumeClaim:

@@ -1,3 +1,6 @@
 [submodule "configs"]
 	path = configs
 	url = git@github.com:nklsla/configs.git
+[submodule "manifests/kubeflow/manifests"]
+	path = manifests/kubeflow/manifests
+	url = git@github.com:nklsla/manifests.git

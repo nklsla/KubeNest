@@ -2,13 +2,15 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Start up order
+# -1. Start up cluster
 # 0. Config-file, Label nodes & other settings
+# 3. Metrics server
 # 1. NFS / Storage
+# 1. Dynamic pvc provisioner
 # 2. Local registry
 
 # -- optional order below-- 
 
-# 3. Metrics server
 # 4. Monitoring 
 # 5. GPU-operator
 # 6. Kubeflow
@@ -43,7 +45,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ## Start NFS server
 ##echo ""
 ##echo "###### Start Network File System ######"
-##helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=192.168.1.80 --set nfs.path=/srv/nfs --set storageClass.onDelete=true
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=${NFS_CLUSTER_IP} --set nfs.path=/subdir-ext --set storageClass.onDelete=true
 #
 ## Start nvidia gpu operator
 #echo ""

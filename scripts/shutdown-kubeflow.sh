@@ -9,5 +9,7 @@ do
   # Delete everthing within the current namespace
   kubectl -n "$namespace" delete all --all
   kubectl -n "$namespace" delete pvc --all
+  kubectl delete ns "$namespace"
 done
 kubectl delete pv kubeflow-authservice-pv kubeflow-katib-pv kubeflow-mysql-pv kubeflow-minio-pv
+
