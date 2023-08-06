@@ -53,7 +53,7 @@ spec:
 If the pod `authservice` cannot start due to `open /var/lib/authservice/data.db: permission denied`
 You need to change the `permissions` before the container starts in the pod.
 
-In the file: [`kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml`](../manifests/kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml)
+In the file: [`kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml`](https://github.com/nklsla/manifests/blob/59fbcdb8637f6574f7a69f1372affe173d8af414/common/oidc-authservice/base/statefulset.yaml)
 Add:
 ```
 initContainers:
