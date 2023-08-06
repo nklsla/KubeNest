@@ -53,7 +53,7 @@ spec:
 If the pod `authservice` cannot start due to `open /var/lib/authservice/data.db: permission denied`
 You need to change the `permissions` before the container starts in the pod.
 
-In the file: [`kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml`](../manifests/kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml)
+In the file: [`kubeflow/manifests/common/oidc-authservice/base/statefulset.yaml`](https://github.com/nklsla/manifests/blob/59fbcdb8637f6574f7a69f1372affe173d8af414/common/oidc-authservice/base/statefulset.yaml)
 Add:
 ```
 initContainers:
@@ -65,6 +65,65 @@ initContainers:
   - name: data
     mountPath: /var/lib/authservice
 ```
+
+<details>
+  <summary>Full file</summary>
+  
+    ```
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: authservice
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: authservice
+      serviceName: authservice
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+          labels:
+            app: authservice
+        spec:
+          initContainers:
+          - name: fix-permission
+            image: busybox
+            command: ['sh','-c']
+            args: ['chmod -R 777 /var/lib/authservice;']
+            volumeMounts:
+            - name: data
+              mountPath: /var/lib/authservice
+          serviceAccountName: authservice
+          containers:
+          - name: authservice
+            image: gcr.io/arrikto/kubeflow/oidc-authservice:e236439
+            imagePullPolicy: Always
+            ports:
+            - name: http-api
+              containerPort: 8080
+            envFrom:
+              - secretRef:
+                  name: oidc-authservice-client
+              - configMapRef:
+                  name: oidc-authservice-parameters
+            volumeMounts:
+              - name: data
+                mountPath: /var/lib/authservice
+            readinessProbe:
+                httpGet:
+                  path: /
+                  port: 8081
+          securityContext:
+            fsGroup: 111
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                  claimName: authservice-pvc
+    ```
+  
+</details>
 This will spin up a lightweight container to change the permission for the folder.
 
 ## Expose service
