@@ -14,7 +14,7 @@ spec:
       labels:
         app: grafana
     spec:
-      nodeName: "${CTLPLN_NODE}"
+      #nodeName: "${CTLPLN_NODE}"
       containers:
       - name: grafana
         image: grafana/grafana:latest
@@ -39,7 +39,7 @@ spec:
         - name: grafana-storage
           nfs:
             #server: nfs-service.storage.svc.cluster.local
-            server: "${NFS_CLUSTER_IP}" # Hard coded until DNS-isse fixed
+            server: "${NFS_CLUSTER_IP}" # Hard coded until DNS-issue fixed
             path: "/monitoring/grafana"
             readOnly: false
           #persistentVolumeClaim:
