@@ -1,0 +1,15 @@
+apiVersion: kubeflow.org/v1beta1
+kind: Profile
+metadata:
+  name: kf-experiments    # replace with the name of profile you want
+spec:
+  owner:
+    kind: User
+    name: niklas@homelab.se   # replace with the email of the user
+#  resourceQuotaSpec:    # resource quota can be set optionally
+#    hard:
+#      cpu: "2"
+#      memory: 2Gi
+#      requests.nvidia.com/gpu: "1"
+#      persistentvolumeclaims: "1"
+#      requests.storage: "5Gi"
