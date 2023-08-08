@@ -143,4 +143,7 @@ while ! kustomize build example | awk '!/well-defined/' | kubectl apply -f -; do
 However, there are few more steps to make sure everything is started and ready before we run this, therefore use the [start-kubeflow.sh](../scripts/start-kubeflow.sh) script
 
 
-
+## Add new users
+To add new namespace/project and users for the namespace\
+[Change/add login details](https://github.com/nklsla/manifests#change-default-user-password)\
+[Adding new users and namespace](https://www.kubeflow.org/docs/components/multi-tenancy/getting-started/)
