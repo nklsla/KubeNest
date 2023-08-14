@@ -29,6 +29,8 @@ sudo chmod g+rwx "$HOME/.docker" -R
 ```
 ## Authentication for registry
 Set up a TLS certificate using __openssl__ and authenticate users with __htpasswd__.
+
+### Set up login details
 I had some issues when letting the command auto create files so I had to pre allocate them.
 ```
 sudo mkdir /srv/registry
@@ -40,42 +42,36 @@ openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key
 ```
 
 Add user authentication to be able to use the docker registry.\
-  __TODO: Change user and password __
+Change `USERNAME` and `PASSWORD` to something suitable.
 ```
 sudo touch auth/htpasswd
 sudo chmod 777 auth/htpasswd
-docker run --rm --entrypoint htpasswd registry:2.7.0 -Bbn myuser mypasswd > auth/htpasswd
+docker run --rm --entrypoint htpasswd registry:2.7.0 -Bbn USERNAME PASSWORD > auth/htpasswd
 sudo chmod 644 auth/htpasswd
 ```
-Distribute the certificate, this has to be done on all nodes!
+The login details will be saved in `auth/htpasswd` in format `USERNAME:<hashed password>`.
+
+### Distribute the certificate
+Run these commands to enable the docker service to authenticate via certificate.
 ```
   sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
   systemctl restart snap.docker.dockerd.service
   # systemctl restart docker 
   sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
-Then you need to log in once to get the basic authentication\
-  local port for the host machine or inside the cluster\
-  nodePort for machines outside the cluster
-  
-  __NOTE: Might need a reboot/log off first time__
-```
-# Privilege to run the service
-sudo chown $USER /var/run/docker.sock
-sudo cp /etc/docker/certs.d/image-registry:5000/ca.crt /usr/local/share/ca-certificates/
-sudo update-ca-certificates
-sudo systemctl restart snap.docker.dockerd.service
-# If not installed with snap:
-# sudo systemctl restart docker
+__This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
+You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
 
-docker login image-registry:<local port or nodePort>
-# Username: myuser
-# Password: mypasswd
-  ```
-you have to add the `DNS` in `/etc/hosts`
+
+### Setup basic authentication
+You need to log in at least once to get the basic authentication on machines that will be using the registry before they can pull/push any images.
+- use `local port` for the host machine or inside the cluster
+- use `nodePort` for machines outside the cluster
+
+But first you need to the `DNS` in `/etc/hosts` to connect using the `DNS`
 ```
 127.0.0.1 localhost
-127.0.1.1 eva
+127.0.1.1 $USER
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback
@@ -88,8 +84,24 @@ ff02::2 ip6-allrouters
 10.106.32.26 image-registry
 #network ID for machines outside of cluster, i.e. 192.168.1.80:<nodeport?>
 ```
+ 
+```
+# Privilege to run the service
+sudo chown $USER /var/run/docker.sock
+sudo cp /etc/docker/certs.d/image-registry:5000/ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+sudo systemctl restart snap.docker.dockerd.service
+# If not installed with snap:
+# sudo systemctl restart docker
 
-Create secretes in kubernetes to mount the certificates and password.
+docker login image-registry:<local port or nodePort>
+# Username: USERNAME
+# Password: PASSWORD
+  ```
+ __NOTE: Might need a reboot/log out/in first time__
+
+### Create secretes 
+For automatic authentication within the cluster, secrets are needed.
 ```
 kubectl create secret tls cert-secret --cert=/srv/registry/cert/tls.crt --key=/srv/registry/cert/tls.key
 kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpasswd
