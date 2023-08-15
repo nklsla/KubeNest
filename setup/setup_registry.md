@@ -64,7 +64,7 @@ You'll have to send them over to the machines that are outside the cluster in or
 
 __NODES__
 - Add DNS-resolve
-- Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt
+- Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt (to this day, kubernetes secretes does not seem to work with docker)
 - Create secretes for auth
 
 __MACHINES OUTSIDE CLUSTER__
