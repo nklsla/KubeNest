@@ -54,13 +54,25 @@ The login details will be saved in `auth/htpasswd` in format `USERNAME:<hashed p
 ### Distribute the certificate
 Run these commands to enable the docker service to authenticate via certificate.
 ```
-  sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
+  #sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
   systemctl restart snap.docker.dockerd.service
   # systemctl restart docker 
   sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
 __This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
 You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
+
+- __NODES__
+- Add DNS-resolve
+- Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt
+- Create secretes for auth
+
+- __MACHINES OUTSIDE CLUSTER__
+- Insecure registry?
+- Install docker
+- DNS-resolve node IP
+- restart docker
+- login
 
 
 ### Setup basic authentication
@@ -71,7 +83,7 @@ You need to log in at least once to get the basic authentication on machines tha
 But first you need to the `DNS` in `/etc/hosts` to connect using the `DNS`
 ```
 127.0.0.1 localhost
-127.0.1.1 $USER
+127.0.1.1 <user>
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback
@@ -80,9 +92,11 @@ ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 
-# Add below 
+# Add below
+# For nodes in the cluster the service-IP can be used
 10.106.32.26 image-registry
-#network ID for machines outside of cluster, i.e. 192.168.1.80:<nodeport?>
+# For machines outside of cluster use any of the node ip's
+# 192.168.1.80 image-registry
 ```
  
 ```
