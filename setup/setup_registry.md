@@ -62,12 +62,12 @@ Run these commands to enable the docker service to authenticate via certificate.
 __This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
 You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
 
-- __NODES__
+__NODES__
 - Add DNS-resolve
 - Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt
 - Create secretes for auth
 
-- __MACHINES OUTSIDE CLUSTER__
+__MACHINES OUTSIDE CLUSTER__
 - Insecure registry?
 - Install docker
 - DNS-resolve node IP
