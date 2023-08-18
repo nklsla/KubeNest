@@ -27,11 +27,15 @@ sudo chown root:docker /var/run/docker.sock
 sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
 sudo chmod g+rwx "$HOME/.docker" -R
 ```
-## Authentication for registry
+
+## Start registry in cluster
+Run the startup script [`scripts/start-registry.sh`](../scripts/start-registry.sh)
+
+## Create authentication for registry
 Set up a TLS certificate using __openssl__ and authenticate users with __htpasswd__.
 
 ### Set up login details
-I had some issues when letting the command auto create files so I had to pre allocate them.
+To avoid some issues while letting the command auto create files, allocate them.
 ```
 sudo mkdir /srv/registry
 cd /srv/registry
@@ -41,7 +45,7 @@ sudo touch cert/tls.crt cert/tls.key
 openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout cert/tls.key -out cert/tls.crt -subj "/CN=image-registry" -addext "subjectAltName = DNS:image-registry"
 ```
 
-Add user authentication to be able to use the docker registry.\
+Add user authentication to be able to login to the docker registry.\
 Change `USERNAME` and `PASSWORD` to something suitable.
 ```
 sudo touch auth/htpasswd
@@ -51,36 +55,17 @@ sudo chmod 644 auth/htpasswd
 ```
 The login details will be saved in `auth/htpasswd` in format `USERNAME:<hashed password>`.
 
-### Distribute the certificate
-Run these commands to enable the docker service to authenticate via certificate.
+### Setup auth secret
+Setup login details as `secret` within kubernetes. This step can be skipped if [`start-registry.sh`](../scripts/start-registry.sh) is run.
 ```
-  #sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
-  systemctl restart snap.docker.dockerd.service
-  # systemctl restart docker 
-  sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
+kubectl create secret docker-registry image-registry-secret --docker-server=image-registry:5000 --docker-username=USERNAME --docker-password=PASSWORD
 ```
-__This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
-You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
 
-__NODES__
-- Add DNS-resolve
-- Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt (to this day, kubernetes secretes does not seem to work with docker)
-- Create secretes for auth
+## Setup nodes
+This have to be done to all nodes to access the registry (including the registry's host node).
 
-__MACHINES OUTSIDE CLUSTER__
-- Insecure registry?
-- Install docker
-- DNS-resolve node IP
-- restart docker
-- login
-
-
-### Setup basic authentication
-You need to log in at least once to get the basic authentication on machines that will be using the registry before they can pull/push any images.
-- use `local port` for the host machine or inside the cluster
-- use `nodePort` for machines outside the cluster
-
-But first you need to the `DNS` in `/etc/hosts` to connect using the `DNS`
+### Resolve DNS
+To resolve the `DNS`-calls add following in `/etc/hosts`.
 ```
 127.0.0.1 localhost
 127.0.1.1 <user>
@@ -95,9 +80,84 @@ ff02::2 ip6-allrouters
 # Add below
 # For nodes in the cluster the service-IP can be used
 10.106.32.26 image-registry
-# For machines outside of cluster use any of the node ip's
+# For machines outside of cluster, use any of the nodes ip's.
+# Your development machine for an example
 # 192.168.1.80 image-registry
 ```
+
+You can find the registry-IP once it is up and running unless you have it specified (recommended) by running
+```
+kubectl get svc -n registry -o wide
+```
+
+### Distribute the certificate
+Currently certificates in `kubernetes secretes` does not work with `docker` so these have to be added on the nodes. Here is how you can do it manually:
+Run these commands to enable the docker service to authenticate via certificate.
+```
+# From the nodes/machine that the certificates where created on:
+# Send certificate over ssh using scp
+scp -P <SSH-port> /srv/registry/cert/tls.crt <user>@<ip>:/tmp/
+
+# create directory
+sudo mkdir -p /etc/docker/certs.d/image-registry:5000
+
+# move certificate (and rename, not sure if necessary) 
+sudo mv /tmp/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
+```
+
+### Example job for testing
+This requies that the image `test-job-img` is present and functional in the registery. See [usage of the registry](#usage-of-registry) below.
+```
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-job
+spec:
+  template:
+    spec:
+      nodeSelector:
+        cpu: "true"
+      containers:
+      - name: test-job-img
+        image: image-registry:5000/test-job-img
+        ports:
+        - containerPort: 5000
+        restartPolicy: Never
+        imagePullSecrets:
+        - name: image-registry-secret
+        backoffLimit: 4
+```
+
+```
+
+  #sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
+  #systemctl restart snap.docker.dockerd.service
+  # systemctl restart docker 
+  sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
+```
+__This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
+You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
+
+__NODES__
+- Add DNS-resolve
+- Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt (to this day, kubernetes secretes does not seem to work with docker)
+- Create secretes for auth(only master/designated node/or connect via NFS)
+- Example job
+
+__MACHINES OUTSIDE CLUSTER__
+- Insecure registry?
+- Install docker
+- DNS-resolve node IP
+- restart docker
+- login
+
+
+### Setup basic authentication
+You need to log in at least once to get the basic authentication on machines that will be using the registry before they can pull/push any images.
+- use `local port` for the host machine or inside the cluster
+- use `nodePort` for machines outside the cluster
+
+
  
 ```
 # Privilege to run the service
@@ -126,3 +186,7 @@ Once the service is up and running. This will make sure nodes within the cluster
 From `service` manifest: Use port fomr the `port` or `targetPort`.
 ### Expose outside of cluster
 From `service` manifest: Use port from the `ǹodePort` setting.
+
+
+## Usage of registry
+Explain how to push & pull from outside machine
