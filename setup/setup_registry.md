@@ -1,7 +1,22 @@
-# Setup Docker Image Registry
-How to setup a local image registry and make it available for all nodes in the kubernetes cluster and machines outside of cluster. The reason for hosting a private image registry is simply that a docker registry is simpler to use in comparison to the `crio`-registry as it does not support pull/push by its self. It's possible using `podman` for that but at the time I realised that I had already made up my mind.
+# Setup Private Docker Image Registry
+How to setup a local/private image registry and make it available for all nodes in the `kubernetes` cluster and machines outside of cluster. The reason for hosting a private image registry is that a docker registry is simpler to use in comparison to the `crio`-registry, in my experience. As it does not support pull/push by it self. It's possible using `podman` for that but at the time I realised that I had already made up my mind.
 
-${toc}
+<!-- toc -->
+
+- [Install docker](#install-docker)
+- [Start registry in cluster](#start-registry-in-cluster)
+- [Create authentication for registry](#create-authentication-for-registry)
+  * [Set up login details](#set-up-login-details)
+  * [Setup auth secret](#setup-auth-secret)
+- [Setup nodes](#setup-nodes)
+  * [Resolve DNS](#resolve-dns)
+  * [Distribute the certificate](#distribute-the-certificate)
+  * [Example job](#example-job)
+- [Setup connection for external machines](#setup-connection-for-external-machines)
+  * [Insecure-registry](#insecure-registry)
+  * [Setup basic authentication](#setup-basic-authentication)
+- [Usage](#usage)
+
 
 ## Install docker
 A normal install of docker is needed for some steps, this could be removed once it's all setup.
@@ -105,8 +120,8 @@ sudo mkdir -p /etc/docker/certs.d/image-registry:5000
 sudo mv /tmp/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
 
-### Example job for testing
-This requies that the image `test-job-img` is present and functional in the registery. See [usage of the registry](#usage-of-registry) below.
+### Example job 
+This requies that the image `test-job-img` is present and functional in the registery. See [Usage](#usage) below.
 ```
 apiVersion: batch/v1
 kind: Job
@@ -129,8 +144,10 @@ spec:
 ```
 
 ## Setup connection for external machines
-A `docker` [install is required](#install-docker).
+A `docker` [install is required](#install-docker).\
+The `DNS` [has to be resolved](#resolve-dns), use the node-IP this time.
 
+### Insecure-registry
 The registry has to be added as an insecure-registry. __Note: This might expose a security flaw for sensitive data__
 
 ```
@@ -144,29 +161,10 @@ systemctl restart snap.docker.dockerd.service
 # Copy 
 sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
-__This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
-You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
-
-__NODES__
-- Add DNS-resolve
-- Copy certificates to /etc/docker/certs.d/image-reg:port/ca.crt (to this day, kubernetes secretes does not seem to work with docker)
-- Create secretes for auth(only master/designated node/or connect via NFS)
-- Example job
-
-__MACHINES OUTSIDE CLUSTER__
-- Insecure registry?
-- Install docker
-- DNS-resolve node IP
-- restart docker
-- login
-
 
 ### Setup basic authentication
 You need to log in at least once to get the basic authentication on machines that will be using the registry before they can pull/push any images.
 - use `local port` for the host machine or inside the cluster
-- use `nodePort` for machines outside the cluster
-
-
  
 ```
 # Privilege to run the service
@@ -177,25 +175,23 @@ sudo systemctl restart snap.docker.dockerd.service
 # If not installed with snap:
 # sudo systemctl restart docker
 
-docker login image-registry:<local port or nodePort>
+docker login image-registry:<nodePort>
 # Username: USERNAME
 # Password: PASSWORD
   ```
  __NOTE: Might need a reboot/log out/in first time__
 
-### Create secretes 
-For automatic authentication within the cluster, secrets are needed.
-```
-kubectl create secret tls cert-secret --cert=/srv/registry/cert/tls.crt --key=/srv/registry/cert/tls.key
-kubectl create secret generic auth-secret --from-file=/srv/registry/auth/htpasswd
-```
-## Expose the registry
-Once the service is up and running. This will make sure nodes within the cluster can access it and machine outside should be able to access as well, to push in new code.
-### Expose within the cluster
-From `service` manifest: Use port fomr the `port` or `targetPort`.
-### Expose outside of cluster
-From `service` manifest: Use port from the `ǹodePort` setting.
+## Usage
+A brief explanation of how to push from an external machine. Needed for [test-job](#example-job).\ Once it is pushed, `pods` can access it when creating instances.
 
+```
+# List current images in registry
+docker images
 
-## Usage of registry
-Explain how to push & pull from outside machine
+# Create image from dockerfile with tag (-t), the tagname is necessary for pushing it.
+docker build -t image-registry:<nodePort>/image-name <path/to/Dockerfile>
+
+# Push to local/private registry
+docker image push image-registry:<nodePort>/image-name 
+
+```

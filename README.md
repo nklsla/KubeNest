@@ -2,6 +2,12 @@
 A home-setup of a local kubernetes cluster and container registry.\
 The inital purpose for this project is to __learn__ more about backend, servers, containers, container orcherstration and MLOps.\
 
+## Install
+This project contains `submodules`. To clone with submodules 
+```
+git clone --recurse-submodules git@github.com:nklsla/k8s-cluster.git
+```
+
 ## Overview
 The cluster is composed by the following componentes
 - Kubelet 1.25.10
