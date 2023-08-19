@@ -1,12 +1,10 @@
 
-# Setup Container Registry
-This will setup a local container registry on the master node and make it available for all nodes in the kubernetes cluster. The workflow is to develop images using docker and push them to the registry. Then apply a kubernetes-job/deployment which will tell a node to pull the images from the registry.
-
-Will probably use docker as registry as this is what I use for development of containers.\
-
-__TODO: How to use the registry. From machine part of cluster and outside__
+# Setup Docker Image Registry
+How to setup a local image registry and make it available for all nodes in the kubernetes cluster and machines outside of cluster. The reason for hosting a private image registry is simply that a docker registry is simpler to use in comparison to the `crio`-registry as it does not support pull/push by its self. It's possible using `podman` for that but at the time I realised that I had already made up my mind.
 
 ## Install docker
+A normal install of docker is needed for some steps, this could be removed once it's all setup.
+
 ```sudo apt install docker```
 
 Add user to group before you do any docker commands
@@ -29,13 +27,14 @@ sudo chmod g+rwx "$HOME/.docker" -R
 ```
 
 ## Start registry in cluster
-Run the startup script [`scripts/start-registry.sh`](../scripts/start-registry.sh)
+Run the startup script [`scripts/start-registry.sh`](../scripts/start-registry.sh).
+This will pull and start the docker image registry
 
 ## Create authentication for registry
 Set up a TLS certificate using __openssl__ and authenticate users with __htpasswd__.
 
 ### Set up login details
-To avoid some issues while letting the command auto create files, allocate them.
+To avoid some issues while letting the command auto create files, preallocate them.
 ```
 sudo mkdir /srv/registry
 cd /srv/registry
@@ -128,12 +127,21 @@ spec:
         backoffLimit: 4
 ```
 
-```
+## Setup connection for external machines
+A `docker` [install is required](#install-docker).
 
-  #sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
-  #systemctl restart snap.docker.dockerd.service
-  # systemctl restart docker 
-  sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
+The registry has to be added as an insecure-registry. __Note: This might expose a security flaw for sensitive data__
+
+```
+sudo echo {“insecure-registries” : [“image-registry:5000”]} > /etc/docker/daemon.json
+
+# If installed via snap
+systemctl restart snap.docker.dockerd.service
+# If installed via apt
+# systemctl restart docker
+
+# Copy 
+sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
 __This has to be done on all nodes!??? Maybe only on outside machines. Secretes might solve this authentication?__\
 You'll have to send them over to the machines that are outside the cluster in order to authenticate. and
