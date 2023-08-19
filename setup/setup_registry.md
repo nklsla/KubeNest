@@ -6,17 +6,18 @@ How to setup a local/private image registry and make it available for all nodes 
 - [Install docker](#install-docker)
 - [Start registry in cluster](#start-registry-in-cluster)
 - [Create authentication for registry](#create-authentication-for-registry)
-  * [Set up login details](#set-up-login-details)
-  * [Setup auth secret](#setup-auth-secret)
+  * [Login details](#login-details)
+  * [Auth secret](#auth-secret)
 - [Setup nodes](#setup-nodes)
   * [Resolve DNS](#resolve-dns)
   * [Distribute the certificate](#distribute-the-certificate)
   * [Example job](#example-job)
 - [Setup connection for external machines](#setup-connection-for-external-machines)
   * [Insecure-registry](#insecure-registry)
-  * [Setup basic authentication](#setup-basic-authentication)
+  * [Basic authentication](#basic-authentication)
 - [Usage](#usage)
 
+<!-- tocstop --> 
 
 ## Install docker
 A normal install of docker is needed for some steps, this could be removed once it's all setup.
@@ -49,7 +50,7 @@ This will pull and start the docker image registry
 ## Create authentication for registry
 Set up a TLS certificate using __openssl__ and authenticate users with __htpasswd__.
 
-### Set up login details
+### Login details
 To avoid some issues while letting the command auto create files, preallocate them.
 ```
 sudo mkdir /srv/registry
@@ -70,7 +71,7 @@ sudo chmod 644 auth/htpasswd
 ```
 The login details will be saved in `auth/htpasswd` in format `USERNAME:<hashed password>`.
 
-### Setup auth secret
+### Auth secret
 Setup login details as `secret` within kubernetes. This step can be skipped if [`start-registry.sh`](../scripts/start-registry.sh) is run.
 ```
 kubectl create secret docker-registry image-registry-secret --docker-server=image-registry:5000 --docker-username=USERNAME --docker-password=PASSWORD
@@ -162,7 +163,7 @@ systemctl restart snap.docker.dockerd.service
 sudo cp /srv/registry/cert/tls.crt /etc/docker/certs.d/image-registry:5000/ca.crt
 ```
 
-### Setup basic authentication
+### Basic authentication
 You need to log in at least once to get the basic authentication on machines that will be using the registry before they can pull/push any images.
 - use `local port` for the host machine or inside the cluster
  
@@ -182,7 +183,8 @@ docker login image-registry:<nodePort>
  __NOTE: Might need a reboot/log out/in first time__
 
 ## Usage
-A brief explanation of how to push from an external machine. Needed for [test-job](#example-job).\ Once it is pushed, `pods` can access it when creating instances.
+A brief explanation of how to push from an external machine. Needed for [test-job](#example-job).\
+Once it is pushed, `pods` can access it when creating instances.
 
 ```
 # List current images in registry
@@ -193,5 +195,4 @@ docker build -t image-registry:<nodePort>/image-name <path/to/Dockerfile>
 
 # Push to local/private registry
 docker image push image-registry:<nodePort>/image-name 
-
 ```
