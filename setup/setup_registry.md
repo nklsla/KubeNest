@@ -1,6 +1,7 @@
-
 # Setup Docker Image Registry
 How to setup a local image registry and make it available for all nodes in the kubernetes cluster and machines outside of cluster. The reason for hosting a private image registry is simply that a docker registry is simpler to use in comparison to the `crio`-registry as it does not support pull/push by its self. It's possible using `podman` for that but at the time I realised that I had already made up my mind.
+
+${toc}
 
 ## Install docker
 A normal install of docker is needed for some steps, this could be removed once it's all setup.
