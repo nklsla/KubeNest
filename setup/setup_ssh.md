@@ -1,5 +1,5 @@
 # Setup a public SSH service
-This will be the nessecary steps to have a secure SSH service exposed to the internet.
+This will be the necessary steps to have a secure SSH service exposed to the internet.
 
 ## Install and enable SSH service
 Make sure `ssh` service is installed and enabled for autostart.
@@ -14,40 +14,66 @@ sudo systemctl enable ssh
 systemctl status ssh
 ```
 
-## Security changes in SSHD config
-All the following changes will be done in `/etc/ssh/sshd_config`. These settings are mostly relevant if the machine is publicly exposed (i.e. internet, not locally). Your router will block any public traffic unless you've opened port `22` for the specific machine. However, for the uniformity this could be applied for all workers, especially the port since there are some automatic `ssh`-commands during the initization phase when starting the cluster.
+## Generate and add SSH-key to host
+Instructions for generating key pair and how to setup on host and client...
+inspirtaion: https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
+### Add key to ssh-agent
+Following [Githubs instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 
-### Change Port 22
-This is the default port for SSH connections and will always be scanned by bots. This port have to be opened in your router
+Generate a new keypair
+```
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+Start the `ssh-agent` 
+```
+eval "$(ssh-agent -s)"
+```
+Add your key to the keychain
+```
+ssh-add ~/.ssh/id_ed25519
+```
+Verify 
+```
+$ ssh -T git@github.com
+Hi nklsla! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+## Security changes in SSHD config
+All the following changes will be done in `/etc/ssh/sshd_config`. These settings are mostly relevant if the machine is publicly exposed (i.e. internet). Your router will block any public traffic unless you've opened port `22` for the specific machine. However, for the uniformity this could be applied for all workers, especially the port since there are some automatic `ssh`-commands during the initiation  phase when starting the cluster ([kub-init.sh](../kub-init.sh)).
+
+#### Change Port 22
+This is the default port for `ssh`-connections and are constantly scanned by bots on the public internet. Changing this will at least remove that risk. In `/etc/ssh/sshd_config` change:
 ```
 Port 33445
 ```
+In this setup the _Uncomplicated Firewall_ (`ufw`) is enabled, which means this port has to be allowed before it is used, see [firewall setup](setup_firewall.sh). \
+For public exposure, this port has to be open in your [router as well](#router-port-forwarding).
 
-### Disable Protocol 1
-The SSH protocol was updated many years ago from `Protocol 1` to `Protocol 2` and the changes was not backwards compatible. Only allowing `Protocol 2` will protect from vurnebilities in `Protocol 1`.\
+#### Disable Protocol 1
+The `ssh`-protocol was updated many years ago from `Protocol 1` to `Protocol 2` and the changes were not backwards compatible. Only allowing `Protocol 2` will protect from vulnerabilities in `Protocol 1`.\
 Simply add:
 ```
 Protocol 2
 ```
 
-### Disable password connections
-We should only connect using SSH keys, not passwords.
-Find and add/change to:
+#### Disable password connections
+Only allowing `keys` greatly increases security from brute-force attacks.
+Find and add/change:
 ```
 PasswordAuthentication no
 PermitEmptyPasswords no
 ```
 
-### Disable X11 and TCP Forwarding
-X11 let remote users run graphical apps over SSH from the server. For this project there is not use for that and therefore it should be disabled.
-TCP forwarding could potentially expose and security risk too.
+#### Disable X11 and TCP Forwarding
+X11 let remote users run graphical apps over SSH from the server. For this setup there is not use for that and therefore it should be disabled. `tcp` forwarding could potentially expose and security risk too.
 ```
 X11Forwarding no
 AllowTcpForwarding no
 ```
 
-### Disable root login's
-Good practise is to not log in as root but use `sudo` when required.
+#### Disable root login's
+As always, a good practise is to not log in as root but use `sudo` when required.
 
 ```
 PermitRootLogin no
@@ -187,40 +213,20 @@ Subsystem       sftp    /usr/lib/openssh/sftp-server
 </details>
 
 
-## Router port forwarding
-To allow a ssh connection and forwarding it from a public IP address, via the router to the server you need to create a port forwarding in your router. This is typically found under the `WAN-settings` or similar. Forward the `WAN` and `LAN` ports to your selected SSH-port and makesure it is forwarding to the correct local ip (the `control-plane` node in this case).
+### Router port forwarding
+To allow a `ssh`-connection and forwarding it from a public IP address, via the router to the host machine you need to create a port forwarding in your router. This is typically found under the `WAN-settings` or similar. Forward the `WAN` and `LAN` ports to your selected `ssh`-port and make sure it is forwarding to the correct local IP (the `control-plane` node in this case).
 
-You normally access your router by `192.168.1.1` or `192.168.0.1`. See the backside of your router for specifications.
-
-## Create and add SSH-key
-Following [Githubs instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
-
-Generate a new keypair
-```
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-Start the `ssh-agent` 
-```
-eval "$(ssh-agent -s)"
-```
-Add your key to the keychain
-```
-ssh-add ~/.ssh/id_ed25519
-```
-Verify 
-```
-$ ssh -T git@github.com
-Hi nklsla! You've successfully authenticated, but GitHub does not provide shell access.
-```
+Normally a router is accessed from `192.168.1.1` or `192.168.0.1`. See the backside of your router for specifications.
 
 ## Connnect using public ip address
-You find your public ip [here](https://www.whatismyip.com) or if you're using VPN, have a look in your routers WAN-settings/status. This setup __does not__ account for a VPN.
+You find your public ip at [whatismyip.com](https://www.whatismyip.com) or if you're using VPN, have a look in your routers WAN-settings/status. This setup __does not__ account for a VPN.
 ```
 ssh -p <SSH-port> <usr>@<host_WAN_ip>
 ```
-## Setup a DDNS
-Create a free account on [dynu.com](https://www.dynu.com) and create a DDNS service and add your current public IP. Follow their guide under DDNS > Setup to start the `IP Update protocol` for automatic updates when the public IP changes.\
+## Setup a Dynamic Domain Name System (DDNS)
+Unless you have a static IP-address from your internet service provider (ISP) you'll have to keep track of your IP-address to connect over the internet. To automate this there is DDNS.\
+- Create a free account on [dynu.com](https://www.dynu.com) and create a DDNS service and add your current public IP. 
+- Follow their guide under DDNS > Setup to start the `IP Update protocol` for automatic updates when the public IP changes.\
 
 ## Extras
 For ease of access you can setup aliases for your `ssh-client`
@@ -228,18 +234,18 @@ For ease of access you can setup aliases for your `ssh-client`
 In you `~/.ssh/config`
 ```
 PermitLocalCommand yes
-Host eva
+Host <host alias>
     Hostname 192.168.1.80
     Port 33445
-    User nkls
+    User <USERNAME>
     LocalCommand konsoleprofile ColorScheme=BlueOnBlack;TabColor=#FF0000
 
-Host eva-remote
-    Hostname nkls.kozow.com
+Host <host alias>-remote
+    Hostname <DDNS>
     Port 33445
-    User nkls
+    User <USERNAME>
     LocalCommand konsoleprofile ColorScheme=BlueOnBlack;TabColor=#FF0000
 
 ```
 and connect with `ssh <hostname>`.\
-__NOTE: the LocalCommand "konsoleprofile" is specific for zshell__
+__NOTE: the LocalCommand "konsoleprofile" is specific for the `konsole`-terminal (native in KDE plasma)__
