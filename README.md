@@ -1,14 +1,29 @@
 # k8s-cluster
-A home-setup of a local kubernetes cluster and container registry.\
-The inital purpose for this project is to __learn__ more about backend, servers, containers, container orcherstration and MLOps.\
+This project started out when I wanted to do my coding on my small comfortable machine and let my other more powerful bulkier machine do the all the work.
+Somehow it got out of hand and I ended up setting up a `kubernetes` cluster with `kubeflow`. <br>
+So now I have a homelab of a local `kubernetes` cluster with `kubeflow`, `docker image registry`, `nfs-server` and more.
 
-## Install
-This project contains `submodules`. To clone with submodules 
-```
-git clone --recurse-submodules git@github.com:nklsla/k8s-cluster.git
-```
+The initial purpose for this project is to __learn__ more about backend, servers, containers, container orcherstration and MLOps. Have in mind that I had no prio knowledge about any of these systemes on before hand so there might be some things that might not completely add up. One of the best ways to learn is to teach, so I figured I should create a guide to have something to reflect over while setting it up. 
 
-## Overview
+This project is mainly focused on running as a local service. All thought some parts are exposed publicly, these parts I mainly did to enable work on this project while I was not home from time to time.
+
+
+<!--toc-->
+
+- [k8s-cluster](#k8s-cluster)
+  * [Install](#install)
+  * [Overview](#overview)
+    + [Master Node (Control-plane)](#master-node-control-plane)
+    + [Worker Node 1](#worker-node-1)
+    + [Worker Node 2](#worker-node-2)
+- [System overview](#system-overview)
+- [Setup guides](#setup-guides)
+  * [Start up](#start-up)
+  * [Troubleshoot](#troubleshoot)
+
+
+
+# Overview
 The cluster is composed by the following componentes
 - Kubelet 1.25.10
 - Kubectl 1.25.10
@@ -17,10 +32,10 @@ The cluster is composed by the following componentes
 - crun
 - Flannel 0.21.5
 - [KubeFlow 1.7](manifests/kubeflow/manifests)
-- Docker local image registry
+- Docker image registry (2.7.0)
 - Prometheus
 - Grafana
-
+- NFS
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
 CPU: 64-bit Intel i3-2310M CPU @ 2.10GHz, 4 cores \
@@ -48,30 +63,38 @@ DISK: 250 GB, SSD
 
 ![System overview](diagrams/System-diagram.drawio.svg)
 <br>
-<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2Fdiagrams%2FSystem-diagram.drawio.svg" target="_blank" rel="noopener noreferrer">Edit diagram in draw.io</a> 
-
-# Setup guides
-[Setup cluster](setup/setup_cluster.md)\
-[Setup local image registry](setup/setup_registry.md)\
-[Setup monitoring](setup/setup_prometheus.md)\
-[Setup persitent volumes](setup/setup_persitentvolumes.md)\
-[Setup firewall](setup/setup_firewall.md)\
-[Setup SSH](setup/setup_ssh.md)\
-[Setup extras](setup/setup_extra.md)\
-[Setup NFS](setup/setup_nfs.md)\
-[Setup Kubeflow](setup/setup_kubeflow.md)
-
-
+<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2Fdiagrams%2FSystem-diagram.drawio.svg" target="_blank" rel="noopener noreferrer">Edit diagram in draw.io</a>
+# Install
+This project contains `submodules`. To clone with submodules 
+```
+git clone --recurse-submodules git@github.com:nklsla/k8s-cluster.git
+```
+## Setup guides
+- [Setup cluster](setup/setup_cluster.md)
+- [Setup firewall](setup/setup_firewall.md)
+- [Setup NFS](setup/setup_nfs.md)
+- [Setup local image registry](setup/setup_registry.md)
+- [Setup monitoring](setup/setup_prometheus.md)
+- [Setup persitent volumes](setup/setup_persitentvolumes.md)
+- [Setup Kubeflow](setup/setup_kubeflow.md)
+- [Setup extras](setup/setup_extra.md)
+- [Setup SSH](setup/setup_ssh.md)
 
 ## Start up
 - Run `kub-init.sh` to initialize the cluster to its bare minimum, including workers
 - Start other services
-  - Kubeflow
-  - GPU-operator
   - NFS service
   - Docker image registry
+  - Metric systems
+  - GPU-operator
+  - Kubeflow
   - Prometheus
   - Grafana
+ 
+
+
+
+
 
 
 ## Troubleshoot
