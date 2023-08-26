@@ -1,11 +1,13 @@
 # Setup a public SSH service
 Setup guide for hosting a `ssh`-service to be securly accessible locally and publicly. This will be the necessary for working with a headless server cluster as this repository aims to do.
+# Setup a SSH-service
+This will be the necessary steps to have a secure SSH service exposed to the internet.
 
 ## Install and enable SSH service
-Make sure `ssh` service is installed and enabled for autostart.
+Make sure `ssh`-service is installed and enabled for autostart. This comes out of the box in `ubuntu server`.
 ```
 sudo apt update
-sudo apt install ssh
+sudo apt install openssh-server
 
 # Start and enable the service to autostart on startup
 sudo systemctl enable ssh
