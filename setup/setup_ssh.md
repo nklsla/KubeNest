@@ -1,7 +1,20 @@
-# Setup a public SSH service
+# Setup SSH
 Setup guide for hosting a `ssh`-service to be securly accessible locally and publicly. This will be the necessary for working with a headless server cluster as this repository aims to do.
-# Setup a SSH-service
-This will be the necessary steps to have a secure SSH service exposed to the internet.
+<!--toc-->
+
+- [Install and enable SSH service](#install-and-enable-ssh-service)
+- [Setup keypair and authentication](#setup-keypair-and-authentication)
+- [Security changes in SSHD config](#security-changes-in-sshd-config)
+    + [Change default port](#change-default-port)
+    + [Disable Protocol 1](#disable-protocol-1)
+    + [Disable password connections](#disable-password-connections)
+    + [Disable X11 and TCP Forwarding](#disable-x11-and-tcp-forwarding)
+    + [Disable root login](#disable-root-login)
+    + [sshd_config](#sshd_config)
+- [Connnect with public IP](#connnect-with-public-ip)
+  * [Router port forwarding](#router-port-forwarding)
+  * [Setup a Dynamic Domain Name System (DDNS)](#setup-a-dynamic-domain-name-system-ddns)
+- [Extras](#extras)
 
 ## Install and enable SSH service
 Make sure `ssh`-service is installed and enabled for autostart. This comes out of the box in `ubuntu server`.
@@ -16,35 +29,15 @@ sudo systemctl enable ssh
 systemctl status ssh
 ```
 
-## Generate and add SSH-key to host
-Instructions for generating key pair and how to setup on host and client...
-inspirtaion: https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
-### Add key to ssh-agent
-Following [Githubs instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
-
-Generate a new keypair
-```
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-Start the `ssh-agent` 
-```
-eval "$(ssh-agent -s)"
-```
-Add your key to the keychain
-```
-ssh-add ~/.ssh/id_ed25519
-```
-Verify 
-```
-$ ssh -T git@github.com
-Hi nklsla! You've successfully authenticated, but GitHub does not provide shell access.
-```
+## Setup keypair and authentication
+A good and detailed explanation from _Digital Ocean_ about this topic is [found here](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server).
+This guide covers everything and is well written, therefore do I see no point in writing a lesser copy.
 
 ## Security changes in SSHD config
-All the following changes will be done in `/etc/ssh/sshd_config`. These settings are mostly relevant if the machine is publicly exposed (i.e. internet). Your router will block any public traffic unless you've opened port `22` for the specific machine. However, for the uniformity this could be applied for all workers, especially the port since there are some automatic `ssh`-commands during the initiation  phase when starting the cluster ([kub-init.sh](../kub-init.sh)).
+All the following changes will be done in `/etc/ssh/sshd_config` on __every machine__ that acts as `ssh`-hosts. These settings are mostly relevant if the machine is publicly exposed (i.e. internet). <br> 
+Your router will block any public traffic unless you've opened port `22` for the specific machine. However, for the uniformity this could be applied for all nodes, especially the port since there are some automatic `ssh`-commands during the initiation phase when starting the cluster ([kub-init.sh](../kub-init.sh)).
 
-#### Change Port 22
+#### Change default port
 This is the default port for `ssh`-connections and are constantly scanned by bots on the public internet. Changing this will at least remove that risk. In `/etc/ssh/sshd_config` change:
 ```
 Port 33445
@@ -74,16 +67,16 @@ X11Forwarding no
 AllowTcpForwarding no
 ```
 
-#### Disable root login's
+#### Disable root login
 As always, a good practise is to not log in as root but use `sudo` when required.
 
 ```
 PermitRootLogin no
 ```
 
-
+#### sshd_config
 <details>
-<summary>The full file </summary>
+<summary>See the full file here </summary>
     
 ```
 # This is the sshd server system-wide configuration file.  See
@@ -215,17 +208,17 @@ Subsystem       sftp    /usr/lib/openssh/sftp-server
 </details>
 
 
-### Router port forwarding
-To allow a `ssh`-connection and forwarding it from a public IP address, via the router to the host machine you need to create a port forwarding in your router. This is typically found under the `WAN-settings` or similar. Forward the `WAN` and `LAN` ports to your selected `ssh`-port and make sure it is forwarding to the correct local IP (the `control-plane` node in this case).
-
-Normally a router is accessed from `192.168.1.1` or `192.168.0.1`. See the backside of your router for specifications.
-
-## Connnect using public ip address
+## Connnect with public IP 
 You find your public ip at [whatismyip.com](https://www.whatismyip.com) or if you're using VPN, have a look in your routers WAN-settings/status. This setup __does not__ account for a VPN.
 ```
 ssh -p <SSH-port> <usr>@<host_WAN_ip>
 ```
-## Setup a Dynamic Domain Name System (DDNS)
+
+### Router port forwarding
+To allow a `ssh`-connection and forwarding it from a public IP address, via the router to the host machine you need to create a port forwarding in your router. This is typically found under the `WAN-settings` or similar. Forward the `WAN` and `LAN` ports to your selected `ssh`-port and make sure it is forwarding to the correct local IP (the `control-plane` node in this case).
+
+Normally a router is accessed from `192.168.1.1` or `192.168.0.1`. See the backside of your router for specifications.
+### Setup a Dynamic Domain Name System (DDNS)
 Unless you have a static IP-address from your internet service provider (ISP) you'll have to keep track of your IP-address to connect over the internet. To automate this there is DDNS.\
 - Create a free account on [dynu.com](https://www.dynu.com) and create a DDNS service and add your current public IP. 
 - Follow their guide under DDNS > Setup to start the `IP Update protocol` for automatic updates when the public IP changes.\
