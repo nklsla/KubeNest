@@ -1,5 +1,5 @@
 # Setup a public SSH service
-This will be the necessary steps to have a secure SSH service exposed to the internet.
+Setup guide for hosting a `ssh`-service to be securly accessible locally and publicly. This will be the necessary for working with a headless server cluster as this repository aims to do.
 
 ## Install and enable SSH service
 Make sure `ssh` service is installed and enabled for autostart.
