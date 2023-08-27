@@ -1,11 +1,11 @@
-# k8s-cluster
-This project started out when I wanted to do my coding on my small comfortable machine and let my other more powerful bulkier machine do the all the work.
-Somehow it got out of hand and I ended up setting up a `kubernetes` cluster with `kubeflow`. <br>
-So now I have a homelab of a local `kubernetes` cluster with `kubeflow`, `docker image registry`, `nfs-server` and more.
+# KubeNest
+This project started out when I wanted to do my coding projects on my small comfortable laptop and let my other more powerful bulkier machine do the all the work. <br>
+Somehow it got out of hand and I ended up setting up a Kubernetes cluster. So now I have a homelab of a local Kubernetes cluster with Kubeflow, Docker Image Registry, NFS-server and more. The cluster runs on a few laptops for the time being. The name KubeNest is just a wordplay on Google Nest and Kubernetes.
 
-The initial purpose for this project is to __learn__ more about backend, servers, containers, container orcherstration and MLOps. Have in mind that I had no prio knowledge about any of these systemes on before hand so there might be some things that might not completely add up. One of the best ways to learn is to teach, so I figured I should create a guide to have something to reflect over while setting it up. 
+The initial purpose for this project was to __learn__ more about backend, servers, containers, container orcherstration and MLOps. 
+Have in mind that I had no prior knowledge about any of these systems beforehand so there most likely some things that might not completely add up. However, one of the best ways to learn is to teach, so I figured I should document each step to have something to reflect over while setting it up, now I figured it might as well share this for anyone who looking for help or inspiration.
 
-This project is mainly focused on running as a local service. All thought some parts are exposed publicly, these parts I mainly did to enable work on this project while I was not home from time to time.
+This project is mainly focused on running on a local network all thought some parts are exposed publicly. The "public parts" were mainly done to enable work on this project while I was not home from time to time.
 
 # Table of Content
 <!--toc-->
@@ -29,14 +29,16 @@ This project is mainly focused on running as a local service. All thought some p
 <a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2Fdiagrams%2FSystem-diagram.drawio.svg" target="_blank" rel="noopener noreferrer">Edit diagram in draw.io</a>
 ## Details
 The cluster is composed by the following componentes
+
+### Softwares
 - Kubelet 1.25.10
 - Kubectl 1.25.10
 - Kubeadm 1.25.10
 - cri-o 1.26
 - crun
 - Flannel 0.21.5
-- [KubeFlow 1.7](manifests/kubeflow/manifests)
-- Docker image registry (2.7.0)
+- [KubeFlow 1.7 (forked)](manifests/kubeflow/manifests)
+- Docker image registry 2.7.0
 - Prometheus
 - Grafana
 - NFS
@@ -68,7 +70,7 @@ DISK: 250 GB, SSD
 # Install
 This project contains `submodules`. To clone with submodules 
 ```
-git clone --recurse-submodules git@github.com:nklsla/k8s-cluster.git
+git clone --recurse-submodules git@github.com:nklsla/KubeNest.git
 ```
 ## Prerequisites 
 - Helm
@@ -76,33 +78,29 @@ git clone --recurse-submodules git@github.com:nklsla/k8s-cluster.git
 - Ubuntu 
 
 ## Setup guides
-- [Setup cluster](setup/setup_cluster.md)
-- [Setup firewall](setup/setup_firewall.md)
+- [Setup Cluster](setup/setup_cluster.md)
+- [Setup Firewall](setup/setup_firewall.md)
 - [Setup NFS](setup/setup_nfs.md)
-- [Setup local image registry](setup/setup_registry.md)
-- [Setup monitoring](setup/setup_prometheus.md)
+- [Setup Docker Image Registry](setup/setup_registry.md)
+- [Setup Monitoring](setup/setup_prometheus.md)
 - [Setup persitent volumes](setup/setup_persitentvolumes.md)
 - [Setup Kubeflow](setup/setup_kubeflow.md)
+- [Setup GPU-operator](setup/setup_gpu.md)
 - [Setup extras](setup/setup_extra.md)
 - [Setup SSH](setup/setup_ssh.md)
 
 ## Start up
-- Run `kub-init.sh` to initialize the cluster to its bare minimum, including workers
-- Start other services
-  - NFS service
-  - Docker image registry
-  - Metric systems
+- Run [`kub-init.sh`](./kub-init.sh) to initialize the cluster to its bare minimum, including workers
+- Run [`kub-start.sh`](./kub-start.sh) to start up all services:
+  - _Set environment variables_
+  - NFS services
+  - Metrics-server
+  - Docker Image Registry
   - GPU-operator
   - Kubeflow
   - Prometheus
   - Grafana
  
-
-
-
-
-
-
 ## Troubleshoot
 Issue for `kubernetes 1.25.10-00`: \
 When resetting the cluster via `kubeadm reset` the `cni` might fail giving following error message on `kubectl describe pods coredns-###`:
