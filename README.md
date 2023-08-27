@@ -7,23 +7,27 @@ The initial purpose for this project is to __learn__ more about backend, servers
 
 This project is mainly focused on running as a local service. All thought some parts are exposed publicly, these parts I mainly did to enable work on this project while I was not home from time to time.
 
-
+# Table of Content
 <!--toc-->
 
-- [k8s-cluster](#k8s-cluster)
-  * [Install](#install)
-  * [Overview](#overview)
+- [System overview](#system-overview)
+  * [Details](#details)
     + [Master Node (Control-plane)](#master-node-control-plane)
     + [Worker Node 1](#worker-node-1)
     + [Worker Node 2](#worker-node-2)
-- [System overview](#system-overview)
-- [Setup guides](#setup-guides)
+- [Install](#install)
+  * [Prerequisites](#prerequisites)
+  * [Setup guides](#setup-guides)
   * [Start up](#start-up)
   * [Troubleshoot](#troubleshoot)
 
 
+# System overview
 
-# Overview
+![System overview](diagrams/System-diagram.drawio.svg)
+<br>
+<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2Fdiagrams%2FSystem-diagram.drawio.svg" target="_blank" rel="noopener noreferrer">Edit diagram in draw.io</a>
+## Details
 The cluster is composed by the following componentes
 - Kubelet 1.25.10
 - Kubectl 1.25.10
@@ -36,6 +40,7 @@ The cluster is composed by the following componentes
 - Prometheus
 - Grafana
 - NFS
+
 ### Master Node (Control-plane)
 OS: Ubuntu server 22.04.2\
 CPU: 64-bit Intel i3-2310M CPU @ 2.10GHz, 4 cores \
@@ -59,16 +64,17 @@ GPU: NVIDIA Quadro RTX4000, 8192 MB GDDR6, 2304 CUDA cores, 288 Tensor cores, 36
 RAM: 32 GB \
 DISK: 250 GB, SSD
 
-# System overview
 
-![System overview](diagrams/System-diagram.drawio.svg)
-<br>
-<a href="https://app.diagrams.net/#Hnklsla%2Fk8s-cluster%2Fmain%2Fdiagrams%2FSystem-diagram.drawio.svg" target="_blank" rel="noopener noreferrer">Edit diagram in draw.io</a>
 # Install
 This project contains `submodules`. To clone with submodules 
 ```
 git clone --recurse-submodules git@github.com:nklsla/k8s-cluster.git
 ```
+## Prerequisites 
+- Helm
+- SSH setup on machines
+- Ubuntu 
+
 ## Setup guides
 - [Setup cluster](setup/setup_cluster.md)
 - [Setup firewall](setup/setup_firewall.md)
