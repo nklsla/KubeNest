@@ -1,10 +1,34 @@
 
 # Setup Kubernetes
-The following has to be done on all nodes.\
-Most of these steps and instructions have I shamelessly taken from [Kubernets](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) and various guides I've found. 
+The following have to be done on all nodes.\
+Most of these steps and instructions have I shamelessly taken from [Kubernets.io](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/), [AdamTheAutomator](https://adamtheautomator.com/cri-o/) and other various other guides I've found. 
+I've rewritten it here as a condensed version for this specific setup.
+<!--toc-->
+
+- [Prerequisite](#prerequisite)
+  * [SSH](#ssh)
+  * [Packages](#packages)
+- [Enable kernel modules](#enable-kernel-modules)
+- [Disable swap](#disable-swap)
+  * [Manual file changes](#manual-file-changes)
+  * [Turn off for current session](#turn-off-for-current-session)
+- [Install the Container Runtime Interface](#install-the-container-runtime-interface)
+  * [Changes in CRI-O config](#changes-in-cri-o-config)
+- [Install Kubernetes](#install-kubernetes)
+- [Firewall setup](#firewall-setup)
 
 ## Prerequisite
+### SSH
+First thing before installing anything; setup communication over SSH.
+[Setup SSH](setup_ssh.md): Follow *"Setup SSH service"* and _"Security changes in SSHD config"_
 
+Make sure the machine gets logged in automatically if rebooted remotely.
+- In Ubuntu desktop 22.04
+  - Settings > Users: Enable "Automatic Login"
+For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubuntu-server-specific)
+
+
+### Packages
 Install following packages on all nodes
 ```
 sudo apt update
@@ -15,15 +39,6 @@ sudo apt install curl ca-certificates apt-transport-https
 # For mounting NFS-server
 sudo apt install nfs-common 
 ```
-
-## SSH
-First thing before installing anything; setup communication over SSH.
-[Setup SSH](setup_ssh.md): Follow *"Setup SSH service"* and _"Security changes in SSHD config"_
-
-Make sure the machine gets logged in automatically if rebooted remotely.
-- In Ubuntu desktop 22.04
-  - Settings > Users: Enable "Automatic Login"
-For laptops it's recommended to [disable hibernation/sleep](setup_extra.md#ubuntu-server-specific)
 
 
 
@@ -50,14 +65,14 @@ EOF
 sudo sysctl --system
 ```
 ## Disable swap
-This is necessary for the `kubelet`service to work properly and will allow better performance (i.e. if your machine has enough of RAM).
+This is necessary for the `kubelet`service to work properly and will allow better performance (i.e. if your machine has enough of RAM). Swap is used by the operating system to create temporary virtual RAM-memory using the hard drives space (i.e. SSD) when the RAMs physical memory is fully utilized.
 
 ### Manual file changes
+Disabling swap manually like below will make sure it is turned off when the system restarts.
 - Open the file `/etc/fstab`
 - Comment out the "swapfile" line
 
-<details> 
- <summary>Like this</summary>
+Example of `/etc/fstab`:
  
 ```
 # /etc/fstab: static file system information.
@@ -74,9 +89,9 @@ UUID=184F-388A  /boot/efi       vfat    umask=0077      0       1
 #/swapfile                                 none            swap    sw              0       0
 ```
 
-</details>
+### Turn off for current session
+Run following to disable swap for the current session.
 
-then run following to disable swap and confirm.
 ```
 # Disable swap
 sudo swapoff -a
@@ -91,7 +106,7 @@ sudo free -m
 ```
 
 ## Install the Container Runtime Interface
-This setup uses `CRI-O` as `CRI` since it is optimized for `Kubernetes`. 
+This setup/project uses __CRI-O__ as __CRI__ since it is optimized for Kubernetes. 
 ```
 # Creating environment variable $OS and $VERSION
 export OS=xUbuntu_22.04
@@ -113,22 +128,23 @@ sudo apt update
 
 # Install CRI-O and crun
 sudo apt install cri-o crun
-
 ```
 
-This setup will be using `crun` due to it being lightweight and better performance than `runc`, but that means some modifications have to be done to the cri-o config. \
-### In `/etc/crio/crio.conf`
-Edit `/etc/crio/crio.conf` and add following under `[crio.runtime]`:
+This setup will be using `crun` due to it being lightweight and better performance than `runc`, but that means some modifications have to be done to the cri-o config.
+
+### Changes in CRI-O config
+Open `/etc/crio/crio.conf` and add/edit following under `[crio.runtime]`:
 ```
 default_runtime = "crun"
-# MIGHT NOT NEED THIS?
+
+# Not sure if the settings below is needed..
 #[crio.runtime.runtimes.crun]
 #allowed_annotations = [
 #    "io.containers.trace-syscall",
 #]
 ```
 
-and make sure these paths are set as below under the `[crio.network]`-section:
+make sure these paths are set as below under the `[crio.network]`-section:
 ```
 [crio.network]
 
@@ -147,8 +163,8 @@ and make sure these paths are set as below under the `[crio.network]`-section:
 
 ```
 
-### In `/etc/crio/crio.conf.d/01-crio-runc.conf`
-add this to the end of the `/etc/crio/crio.conf.d/01-crio-runc.conf`:
+
+Open `/etc/crio/crio.conf.d/01-crio-runc.conf` and add at the end of file:
 ```
 [crio.runtime.runtimes.crun]
 runtime_path = "/usr/bin/crun"
@@ -156,7 +172,7 @@ runtime_type = "oci"
 runtime_root = "/run/crun"
 ```
 
-Now restart and enable `crio` to start on boot: 
+Now restart and enable CRI-O to start on boot: 
 ```
 systemctl restart crio
 systemctl enable crio
@@ -164,9 +180,9 @@ systemctl status crio
 ```
 
 ## Install Kubernetes
-Now it's time to install `kubernetes`!
+Now it's time to install kubernetes!
 
-Version `1.25.10-00` is used because of `kubeflow` requirements.
+Version `1.25.10-00` is used because of KubeFlow requirements.
 Following [step 1-3 in this guide](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management)
 ``` 
 # Download Google Cloud public signing key
@@ -185,5 +201,5 @@ sudo apt install kubelet=1.25.10-00 kubeadm=1.25.10-00 kubectl=1.25.10-00
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
-## Set up firewall
+## Firewall setup
 [See here](setup_firewall.md)

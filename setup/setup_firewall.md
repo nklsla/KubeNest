@@ -1,25 +1,36 @@
 # Setup UFW - Uncomplicated FireWall
 This guide gives an overview of all ports that are required for this project.
+<!--toc-->
 
-## Install and/or enable ufw
-Install the `uncomplicated firewall`
+
+- [Install ufw](#install-andor-enable-ufw)
+- [Change settings for IP 6](#change-settings-for-ip-6)
+- [Open ports](#open-ports)
+  * [Control-plane](#control-plane)
+  * [Worker nodes](#worker-nodes)
+- [Overview ports](#overview-ports)
+  * [Public ports](#public-ports)
+  * [Local ports](#local-ports)
+
+
+# Install ufw
 ```
 sudo apt install ufw -y
 sudo ufw enable
 ```
 
-Apply these settings to `IP 6`\
-open and make sure to have following in `/etc/default/ufw`:
+## Change settings for IP 6
+Open `/etc/default/ufw` and change following if needed:
 ```
 IPV6=yes
 ```
 
-if you had to change:
+Disable/enable if you had to change
 ```
 sudo ufw disable && sudo ufw enable
 ```
 
-Configure the default settings:
+Configure the default settings to only allow inbound connection at manually allowed ports
 ```
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
@@ -29,19 +40,21 @@ sudo ufw allow ssh
 ```
 ## Open ports
 
-[Kubernetes documentation](https://kubernetes.io/docs/reference/networking/ports-and-protocols/)
+See [Kubernetes documentation](https://kubernetes.io/docs/reference/networking/ports-and-protocols/) for more details.
 
 ### Control-plane
 ```
 # Open the SSH-port
-sudo ufw allow 33445/tcp
+sudo ufw allow <YOU SSH PORT>/tcp
 
 # WILL UNCOMMENT IF NEEDED.. Kubernetes service listens to this port thought..
 #sudo ufw allow https
 #sudo ufw allow 443
 
 # Open ports for local docker image registry
+# Within the cluster
 sudo ufw allow 5000/tcp
+# Outside the cluster
 sudo ufw allow 31320/tcp
 
 # Open ports for Control Plane
@@ -54,9 +67,9 @@ sudo ufw allow 10257/tcp
 # Open port for kubernetes metric server (if untainted or no worker node)
 sudo ufw allow 4443/tcp
 
-# Different ports for different CNI's
+# Depending on what CNI is used:
 
-# Flannel
+# Flannel (used here)
 sudo ufw allow 8285/udp
 sudo ufw allow 8472/udp
 
@@ -71,7 +84,7 @@ sudo ufw allow 8472/udp
 
 ```
 # Open port for SSH
-sudo ufw allow 33445/tcp
+sudo ufw allow <YOUR SSH PORT>/tcp
 
 # For https, e.g. Kubeflow
 #sudo ufw allow https
@@ -87,8 +100,9 @@ sudo ufw allow 4443/tcp
 # Open port for Prometheus
 sudo ufw allow 30000/tcp
 
-# Different ports for different CNI's
-# Flannel
+# Depending on what CNI is used:
+
+# Flannel (used here)
 sudo ufw allow 8285/udp
 sudo ufw allow 8472/udp
 
@@ -99,22 +113,22 @@ sudo ufw allow 8472/udp
 #sudo ufw allow 2379/tcp
 ```
 
-
-and restart the service
+When ports are set, restart the ufw for good measure.
 ```
 sudo systemctl restart ufw
 ```
 
 
-## Public ports
+## Overview ports
+### Public ports
 | Service | Port |
 |---|---|
 |Grafana|32000|
 |Image Registry|31320|
 |Kubeflow|31000|
-|SSH|33445|
+|SSH|\<YOUR SSH PORT>|
 
-## Clust local ports
+### Local ports
 | Service | Port |
 |---|---|
 |Grafana|3000|
