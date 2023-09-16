@@ -1,20 +1,31 @@
 # Extras
-Here are some nice-to-have settings but not required.
+Here are some nice-to-have settings I've used for this project.
 
 ## Ubuntu-server specific:
-`.bashrc`:
+Some aliases for working with kubectl and auto-completion (really useful).<br>
+`~/.bashrc`:
 ```
 # Vim
-EDITOR=vim
+export EDITOR=vim
+alias sudoe="sudo -E $EDITOR $@"
 
 # Kubernetes
-alias kp="kubectl get pods -A -o wide"
-alias kn="kubectl get nodes -A -o wide"
+alias kn="kubectl get nodes -n -all -o wide"
+alias kpp="kubectl get pods -A -o wide"
+alias kppe="kubectl get pods -A -o wide | grep -v Running"
+alias kp="kubectl get pods -o wide"
+alias kd="kubectl describe"
 alias k=kubectl
+
+
 source <(kubectl completion bash)
 complete -F __start_kubectl k
+
+# SSH
+eval "$(ssh-agent)" 1>/dev/null
+ssh-add -q ~/.ssh/github
 ```
-For laptop-servers, turn off suspend/sleep when lid is closed by uncomment and change in file `/etc/systemd/logind.conf`
+For laptop-servers, turn off suspend/sleep when lid is closed by uncomment and change in file <br> `/etc/systemd/logind.conf`:
 ```
 HandleLidSwitch=ignore
 HandleLidSwitchExternalPower=ignore
@@ -27,10 +38,10 @@ systemctl restart systemd-logind.service
 
 
 ## Manjaro setup
-This is for my main machine, which isnt part of the cluster. I use Manjaro with KDE-plasma.
+For my main machine, which isn't part of the cluster. I use Manjaro with KDE-plasma.
 
 ### SSH colorscheme
-Append or create following in file: `~/.ssh/config`
+Append or create following in file: <br> `~/.ssh/config`
 ```
 PermitLocalCommand yes
 Host <alias of server>
@@ -38,16 +49,10 @@ Host <alias of server>
     User <log in as user>
     LocalCommand konsoleprofile ColorScheme=<Theme eg. RedOnBlack>;TabColor=#FF0000
 ```
-The above will change the terminal color scheme when connecting to the set host. However, it will not change back. To get around that I set it back by masking `ssh` as a function in my shell, see below.\
-Append this to `.zshrc`
-```
-# SSH custom colors
-# Mask as function, restore ColorScheme on exit
-ssh() {/usr/bin/ssh "$@"; konsoleprofile ColorScheme=Breath  }
-```
+The above will change the terminal color scheme when connecting to the set host. However, it will not change back. To get around that I set it back by masking `ssh` as a function in my shell, see below.
 
-### Shell scripts
-Append this to `.zshrc`
+### zsh scripts
+Append this into `~/.zshrc`:
 ```
 # Default
 alias l=ls
@@ -57,14 +62,11 @@ alias ll="ls -lha"
 eval "$(ssh-agent)" 1>/dev/null
 ssh-add -q /home/nkls/.ssh/github 
 
-# Disable capslock and remap button to 'End'
-setxkbmap -option caps:none
-xmodmap -e "keycode 66 = End"
-
 # SSH custom colors
 # Mask as function, restore ColorScheme on exit
 ssh() {/usr/bin/ssh "$@"; konsoleprofile ColorScheme=Breath  }
 ```
 
-## Add .vimrc
-[See my .dotfiles-repo](https://github.com/nklsla/.dotfiles)
+## More
+For more details on my vim-setup and the above mentioned files
+[see my .dotfiles-repo](https://github.com/nklsla/.dotfiles)

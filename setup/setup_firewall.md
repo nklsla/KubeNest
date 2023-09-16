@@ -100,6 +100,11 @@ sudo ufw allow 4443/tcp
 # Open port for Prometheus
 sudo ufw allow 30000/tcp
 
+# Open ports for NFS
+sudo ufw allow 111/tcp
+sudo ufw allow 2049/tcp
+sudo ufw allow 6666/tcp
+
 # Depending on what CNI is used:
 
 # Flannel (used here)
