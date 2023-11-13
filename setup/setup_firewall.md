@@ -1,16 +1,16 @@
 # Setup UFW - Uncomplicated FireWall
-This guide gives an overview of all ports that are required for this project.
+This guide shows how to work with UFW and what ports are used for what in this projects.
 <!--toc-->
 
+- [Install ufw](#install-ufw)
+  * [Change settings for IP 6](#change-settings-for-ip-6)
+  * [Open ports](#open-ports)
+    + [Control-plane](#control-plane)
+    + [Worker nodes](#worker-nodes)
+  * [Overview ports](#overview-ports)
+    + [Public ports](#public-ports)
+    + [Local ports](#local-ports)
 
-- [Install ufw](#install-andor-enable-ufw)
-- [Change settings for IP 6](#change-settings-for-ip-6)
-- [Open ports](#open-ports)
-  * [Control-plane](#control-plane)
-  * [Worker nodes](#worker-nodes)
-- [Overview ports](#overview-ports)
-  * [Public ports](#public-ports)
-  * [Local ports](#local-ports)
 
 
 # Install ufw
@@ -36,7 +36,9 @@ sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
 # Requires SSH service to be running (will allow port 22 by default)
+# REMOVE DIS??????
 sudo ufw allow ssh
+# REMOVE DIS??????
 ```
 ## Open ports
 
@@ -52,9 +54,9 @@ sudo ufw allow <YOU SSH PORT>/tcp
 #sudo ufw allow 443
 
 # Open ports for local docker image registry
-# Within the cluster
+# Internal
 sudo ufw allow 5000/tcp
-# Outside the cluster
+# External
 sudo ufw allow 31320/tcp
 
 # Open ports for Control Plane
@@ -73,7 +75,7 @@ sudo ufw allow 4443/tcp
 sudo ufw allow 8285/udp
 sudo ufw allow 8472/udp
 
-# Calico
+# Calico (previous versions)
 #sudo ufw allow 179/tcp
 #sudo ufw allow 4789/udp
 #sudo ufw allow 4789/tcp
@@ -111,7 +113,7 @@ sudo ufw allow 6666/tcp
 sudo ufw allow 8285/udp
 sudo ufw allow 8472/udp
 
-# Calico
+# Calico (previous versions)
 #sudo ufw allow 179/tcp
 #sudo ufw allow 4789/udp
 #sudo ufw allow 4789/tcp
@@ -139,4 +141,5 @@ sudo systemctl restart ufw
 |Grafana|3000|
 |Image Registry|5000|
 |Kubeflow|-|
+|Prometheus|30000|
 

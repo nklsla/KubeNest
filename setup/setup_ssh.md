@@ -37,10 +37,10 @@ This guide covers everything and is well written, therefore do I see no point in
 All the following changes will be done in `/etc/ssh/sshd_config` on __every machine__ that acts as `ssh`-hosts. These settings are mostly relevant if the machine is publicly exposed (i.e. internet). <br> 
 Your router will block any public traffic unless you've opened port `22` for the specific machine. However, for the uniformity this could be applied for all nodes, especially the port since there are some automatic `ssh`-commands during the initiation phase when starting the cluster ([kub-init.sh](../kub-init.sh)).
 
-#### Change default port
+#### Change default port 22
 This is the default port for `ssh`-connections and are constantly scanned by bots on the public internet. Changing this will at least remove that risk. In `/etc/ssh/sshd_config` change:
 ```
-Port 33445
+Port <your ssh port>
 ```
 In this setup the _Uncomplicated Firewall_ (`ufw`) is enabled, which means this port has to be allowed before it is used, see [firewall setup](setup_firewall.sh). \
 For public exposure, this port has to be open in your [router as well](#router-port-forwarding).
@@ -53,7 +53,7 @@ Protocol 2
 ```
 
 #### Disable password connections
-Only allowing `keys` greatly increases security from brute-force attacks.
+Allowing only `keys` greatly increases security from brute-force attacks.
 Find and add/change:
 ```
 PasswordAuthentication no

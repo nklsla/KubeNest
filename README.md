@@ -12,9 +12,10 @@ This project is focused on running in a local network all thought some parts are
 # Table of Content
 <!--toc-->
 
+
 - [System overview](#system-overview)
   * [Specifications](#specifications)
-    + [Softwares](#softwares)
+    + [Cluster Components](#cluster-components)
     + [Master Node (Control-plane)](#master-node-control-plane)
     + [Worker Node 1](#worker-node-1)
     + [Worker Node 2](#worker-node-2)
@@ -23,8 +24,6 @@ This project is focused on running in a local network all thought some parts are
   * [Setup guides](#setup-guides)
   * [Start up](#start-up)
   * [Troubleshoot](#troubleshoot)
-
-
 # System overview
 
 ![System overview](diagrams/System-diagram.drawio.svg)
@@ -33,7 +32,7 @@ This project is focused on running in a local network all thought some parts are
 ## Specifications
 The cluster is composed by the following componentes
 
-### Softwares
+### Cluster Components
 - Kubelet 1.25.10
 - Kubectl 1.25.10
 - Kubeadm 1.25.10
@@ -51,7 +50,7 @@ OS: Ubuntu server 22.04.2\
 CPU: 64-bit Intel i3-2310M CPU @ 2.10GHz, 4 cores \
 GPU: - \
 RAM: 4 GB \
-DISK: 700 GB, HDD (yes..)\
+DISK: 700 GB, HDD \
 TYPE: Laptop
 
 
@@ -65,9 +64,9 @@ TYPE: Laptop
 
 ### Worker Node 2
 OS: Ubuntu server 22.04.2 \
-CPU: WILL BE FILLED IN\
-GPU: NVIDIA GTX 1070 - WILL BE FILLED IN\
-RAM: 16 GB \
+CPU: 64/bit Intel i5-4690K @ 3.50GHz, 4 cores \
+GPU: NVIDIA GTX 1070, 8 GB GDDR5, 1920 CUDA cores \
+RAM: 16 GB, DIMM DDR3 1600MHz\
 DISK: 250 GB, SSD\
 TYPE: Desktop
 
@@ -80,14 +79,15 @@ TYPE: Desktop
 
 
 # Install
-This project contains `submodules`. To clone with submodules 
+This project contains `submodules` (Kubeflow). To clone with submodules 
 ```
 git clone --recurse-submodules git@github.com:nklsla/KubeNest.git
 ```
 ## Prerequisites 
-- Helm
-- SSH setup on machines
+- [Helm](https://helm.sh/docs/intro/install/)
+- Enable SSH on all machines
 - Ubuntu 22.04
+- [Setup `scripts/parameters.sh`](scripts/parameters.sh)
 
 ## Setup guides
 - [Setup SSH](setup/setup_ssh.md)
@@ -96,15 +96,16 @@ git clone --recurse-submodules git@github.com:nklsla/KubeNest.git
 - [Setup NFS](setup/setup_nfs.md)
 - [Setup Docker Image Registry](setup/setup_registry.md)
 - [Setup Monitoring](setup/setup_prometheus.md)
-- [Setup persitent volumes](setup/setup_persitentvolumes.md)
 - [Setup Kubeflow](setup/setup_kubeflow.md)
 - [Setup GPU-operator](setup/setup_gpu.md)
 - [Setup Extras](setup/setup_extra.md)
+<!-- - [Setup persitent volumes](setup/setup_persitentvolumes.md) -->
 
 ## Start up
-- Run [`kub-init.sh`](./kub-init.sh) to initialize the cluster to its bare minimum, including workers
+
+- Run [`kub-init.sh`](./kub-init.sh) to initialize the cluster to its bare minimum, connecting workers.
 - Run [`kub-start.sh`](./kub-start.sh) to start up all services:
-  - _Sets environment variables_
+  - _sets parameters_
   - NFS services
   - Metrics-server
   - Docker Image Registry
@@ -125,10 +126,9 @@ Events:
 ```
 Try this
 ```
+# If not installed
+sudo apt install bridge-utils
+
 sudo ip link set cni0 down
 sudo brctl delbr cni0  
-```
-if `brctl` is not "found" you have to install 
-```
-sudo apt install bridge-utils
 ```
