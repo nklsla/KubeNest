@@ -99,6 +99,7 @@ sudo ufw allow 8443/tcp
 
 # Open port for Prometheus
 sudo ufw allow 30000/tcp
+sudo ufw allow 8080/tcp
 
 # Open ports for NFS
 sudo ufw allow 111/tcp
