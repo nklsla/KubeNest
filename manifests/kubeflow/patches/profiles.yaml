@@ -1,7 +1,7 @@
 apiVersion: kubeflow.org/v1beta1
 kind: Profile
 metadata:
-  name: kf-experiments    # replace with the name of profile you want
+  name: kf-dev    # replace with the name of profile you want
 spec:
   owner:
     kind: User

@@ -1,9 +1,10 @@
 # Setup UFW - Uncomplicated FireWall
-This guide shows how to work with UFW and what ports are used for what in this projects.
+This guide shows how to work with the UFW.
 <!--toc-->
 
+
 - [Install ufw](#install-ufw)
-  * [Change settings for IP 6](#change-settings-for-ip-6)
+  * [Settings](#settings)
   * [Open ports](#open-ports)
     + [Control-plane](#control-plane)
     + [Worker nodes](#worker-nodes)
@@ -12,14 +13,13 @@ This guide shows how to work with UFW and what ports are used for what in this p
     + [Local ports](#local-ports)
 
 
-
 # Install ufw
 ```
 sudo apt install ufw -y
 sudo ufw enable
 ```
 
-## Change settings for IP 6
+## Settings
 Open `/etc/default/ufw` and change following if needed:
 ```
 IPV6=yes
@@ -34,11 +34,6 @@ Configure the default settings to only allow inbound connection at manually allo
 ```
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-
-# Requires SSH service to be running (will allow port 22 by default)
-# REMOVE DIS??????
-sudo ufw allow ssh
-# REMOVE DIS??????
 ```
 ## Open ports
 
@@ -49,9 +44,9 @@ See [Kubernetes documentation](https://kubernetes.io/docs/reference/networking/p
 # Open the SSH-port
 sudo ufw allow <YOU SSH PORT>/tcp
 
-# WILL UNCOMMENT IF NEEDED.. Kubernetes service listens to this port thought..
-#sudo ufw allow https
-#sudo ufw allow 443
+# For https, e.g. Kubeflow
+sudo ufw allow https
+sudo ufw allow 443
 
 # Open ports for local docker image registry
 # Internal
@@ -89,8 +84,8 @@ sudo ufw allow 8472/udp
 sudo ufw allow <YOUR SSH PORT>/tcp
 
 # For https, e.g. Kubeflow
-#sudo ufw allow https
-#sudo ufw allow 443
+sudo ufw allow https
+sudo ufw allow 443
 
 # Open ports for Kubernetes
 sudo ufw allow 10250/tcp
@@ -98,6 +93,9 @@ sudo ufw allow 30000:32767/tcp
 
 # Open port for kubernetes metric server
 sudo ufw allow 4443/tcp
+
+# Open port for Kubeflow
+sudo ufw allow 8443/tcp
 
 # Open port for Prometheus
 sudo ufw allow 30000/tcp
@@ -140,6 +138,6 @@ sudo systemctl restart ufw
 |---|---|
 |Grafana|3000|
 |Image Registry|5000|
-|Kubeflow|-|
+|Kubeflow|8443|
 |Prometheus|30000|
 
