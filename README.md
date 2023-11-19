@@ -95,10 +95,10 @@ git clone --recurse-submodules git@github.com:nklsla/KubeNest.git
 - [Setup Firewall](setup/setup_firewall.md)
 - [Setup NFS](setup/setup_nfs.md)
 - [Setup Docker Image Registry](setup/setup_registry.md)
-- [Setup Monitoring](setup/setup_prometheus.md)
 - [Setup Kubeflow](setup/setup_kubeflow.md)
 - [Setup GPU-operator](setup/setup_gpu.md)
 - [Setup Extras](setup/setup_extra.md)
+<!-- - [Setup Monitoring](setup/setup_prometheus.md) -->
 <!-- - [Setup persitent volumes](setup/setup_persitentvolumes.md) -->
 
 ## Start up
