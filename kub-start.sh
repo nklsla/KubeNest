@@ -24,6 +24,7 @@ echo "###### Label Nodes  ######"
 kubectl label nodes ${CTLPLN_NODE} nodetype=storage
 kubectl label nodes ${WORKER_NODE_1} node-role.kubernetes.io/worker=worker
 kubectl label nodes ${WORKER_NODE_2} node-role.kubernetes.io/worker=worker
+kubectl label nodes ${WORKER_NODE_3} node-role.kubernetes.io/worker=worker
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo ""

@@ -2,14 +2,14 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Check if file exsists
-FILE="$DIR/../configs/config.sh"
+FILE="$DIR/../configs/config-cluster.sh"
 if [ ! -f $FILE ]; then
     echo "configs/config-cluster.sh not found"
     echo "fallback to ./parameters.sh"
     FILE="$DIR/parameters.sh"
-    exit 1
+    #exit 1
 fi
-source FILE
+source $FILE
 
 # Print for feedback
 echo "#####################"

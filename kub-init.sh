@@ -9,6 +9,10 @@ echo ">HOSTNAME: $NODENAME"
 echo ">IP ADDRESS: $IPADDR"
 echo "#######################"
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Set environment variables from config
+source $DIR/scripts/start-cfg.sh
+
 # Add ip to arg
 export KUBELET_EXTRA_ARGS=--node-ip=$IPADDR
 

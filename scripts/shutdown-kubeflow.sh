@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of namespaces
-namespaces=("kubeflow" "knative-serving" "knative-eventing" "cert-manager" "istio-system" "auth" "kubeflow-user-example-com")
+namespaces=("kubeflow" "knative-serving" "knative-eventing" "cert-manager" "istio-system" "auth" "kubeflow-user-example-com" "kf-experiments")
 
 # Loop through the namespaces
 for namespace in "${namespaces[@]}"

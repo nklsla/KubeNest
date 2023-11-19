@@ -49,5 +49,5 @@ spec:
             server: "${NFS_CLUSTER_IP}" # Hard coded until DNS-issue fixed
             path: "/monitoring/prometheus"
             readOnly: false
-          #persistentVolumeClaim:
-          #  claimName: prometheus-pvc
+#          persistentVolumeClaim:
+#            claimName: prometheus-pvc
