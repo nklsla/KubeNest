@@ -2,6 +2,7 @@
 configs/
 kub-join.sh
 __*
+cni_files.tar
 
 
 # From kubeflow
