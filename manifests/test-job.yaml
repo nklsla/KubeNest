@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-job-eva
+spec:
+  template:
+    spec:
+      #nodeSelector:
+      #  kubernetes.io/hostname: "eva"
+      containers:
+        - name: test-job-img
+          image: image-registry:5000/rs-mdl
+          ports:
+            - containerPort: 5000
+      imagePullSecrets:
+        - name: image-registry-secret
+      restartPolicy: Never
+  #backoffLimit: 4

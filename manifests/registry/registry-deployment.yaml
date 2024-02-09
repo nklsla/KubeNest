@@ -23,8 +23,6 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
         effect: NoSchedule
-      nodeSelector:
-        nodetype: storage
       volumes:
       - name: cert-vol
         secret:
@@ -39,7 +37,7 @@ spec:
           path: "/registry"
           readOnly: false
       containers:
-        - image: registry:2.7.0
+        - image: registry:2.8.3
           name: image-registry
           imagePullPolicy: IfNotPresent
           env:
@@ -47,6 +45,7 @@ spec:
             value: "htpasswd"
           - name: REGISTRY_AUTH_HTPASSWD_REALM
             value: "Registry Realm"
+            value: "Registry"
           - name: REGISTRY_AUTH_HTPASSWD_PATH
             value: "/auth/htpasswd"
           - name: REGISTRY_HTTP_TLS_CERTIFICATE
