@@ -33,14 +33,14 @@ This project is focused on running in a local network all thought some parts are
 The cluster is composed by the following componentes
 
 ### Cluster Components
-- Kubelet 1.25.10
-- Kubectl 1.25.10
-- Kubeadm 1.25.10
+- Kubelet 1.26.9
+- Kubectl 1.26.9
+- Kubeadm 1.26.9
 - cri-o 1.26
 - crun
 - Flannel 0.21.5
-- KubeFlow 1.7
-- Docker image registry 2.7.0
+- KubeFlow 1.8
+- Docker image registry 2.8.3
 - Prometheus
 - Grafana
 - NFS
@@ -88,6 +88,7 @@ git clone --recurse-submodules git@github.com:nklsla/KubeNest.git
 - Enable SSH on all machines
 - Ubuntu 22.04
 - [Setup `scripts/parameters.sh`](scripts/parameters.sh)
+- kustomize 5.0.3 (kubeflow)
 
 ## Setup guides
 - [Setup SSH](setup/setup_ssh.md)
@@ -115,6 +116,7 @@ git clone --recurse-submodules git@github.com:nklsla/KubeNest.git
   - Grafana
  
 ## Troubleshoot
+### Kubernetes - failed to set bridge addr: cni0
 Issue for `kubernetes 1.25.10-00`: \
 When resetting the cluster via `kubeadm reset` the `cni` might fail giving following error message on `kubectl describe pods coredns-###`:
 ```
