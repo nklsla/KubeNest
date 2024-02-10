@@ -189,7 +189,7 @@ systemctl status crio
 ## Install Kubernetes
 Now it's time to install kubernetes!
 
-Version `1.25.10-00` is used because of KubeFlow requirements.
+Version `1.26.9-00` is used because of KubeFlow requirements.
 Following [step 1-3 in this guide](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management)
 ``` 
 # Download Google Cloud public signing key
@@ -202,7 +202,7 @@ echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://a
 sudo apt update
 
 # Installing kubernetes and tools
-sudo apt install kubelet=1.25.10-00 kubeadm=1.25.10-00 kubectl=1.25.10-00
+sudo apt install kubelet=1.26.9-00 kubeadm=1.26.9-00 kubectl=1.26.9-00
 
 # Lock packages for version control
 sudo apt-mark hold kubelet kubeadm kubectl
