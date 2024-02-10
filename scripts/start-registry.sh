@@ -7,8 +7,9 @@ kubectl create namespace registry
 kubectl create secret tls cert-secret --cert="${DOCKER_CRT_PATH}" --key="${DOCKER_KEY_PATH}" --namespace=registry
 kubectl create secret generic auth-secret --from-file="${DOCKER_HTPWD_PATH}" --namespace=registry
 
-# Add secret for user/pods
-kubectl create secret docker-registry image-registry-secret --docker-server=image-registry:5000 --docker-username="${DOCKER_USR}" --docker-password="${DOCKER_PWD}"
+# Add secret for pods in their namespaces
+#kubectl create secret docker-registry image-registry-secret --docker-server=image-registry:5000 --docker-username="${DOCKER_USR}" --docker-password="${DOCKER_PWD}"
+kubectl create secret docker-registry image-registry-secret --docker-server=image-registry:5000 --docker-username="${DOCKER_USR}" --docker-password="${DOCKER_PWD}" --namespace=kf-dev
 
 # Create Deployment and Service
 DIR_REGISTRY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

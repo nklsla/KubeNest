@@ -6,7 +6,7 @@ kubectl apply -f <(envsubst < $DIR_PATCH/storageclasses.yaml)
 kubectl apply -f <(envsubst < $DIR_PATCH/persistentvolumes.yaml)
 
 cd $DIR_KUBEFLOW/../manifests/kubeflow/manifests
-#while ! kustomize build example | awk '!/well-defined/' | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 5; done
+while ! kustomize build example | awk '!/well-defined/' | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 5; done
 cd $DIR_KUBEFLOW
 
 ## Apply patches and create certificate for https
