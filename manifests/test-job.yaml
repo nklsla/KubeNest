@@ -5,13 +5,23 @@ metadata:
 spec:
   template:
     spec:
+      volumes:
+      - name: data-vol
+        nfs:
+          #server: nfs-service.storage.svc.cluster.local # Hard code ip due to bug in DNS
+          server: "${NFS_CLUSTER_IP}"
+          path: /data
+          readOnly: false
       #nodeSelector:
       #  kubernetes.io/hostname: "eva"
       containers:
-        - name: test-job-img
-          image: image-registry:5000/rs-mdl
+        - name: transmute-into-images
+          image: image-registry:5000/rs-transmute
           ports:
             - containerPort: 5000
+          volumeMounts:
+          - name: data-vol
+            mountPath: /data
       imagePullSecrets:
         - name: image-registry-secret
       restartPolicy: Never

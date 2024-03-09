@@ -3,7 +3,7 @@ apiVersion: kubeflow.org/v1beta1
 kind: Experiment
 metadata:
   namespace: kf-dev
-  name: test-experiment-5
+  name: test-train-1
 spec:
   objective:
     type: maximize
@@ -15,8 +15,8 @@ spec:
       - train-loss
   algorithm:
     algorithmName: random
-  parallelTrialCount: 2
-  maxTrialCount: 2
+  parallelTrialCount: 5
+  maxTrialCount: 6
   maxFailedTrialCount: 2
   parameters:
     - name: lr
@@ -24,31 +24,35 @@ spec:
       feasibleSpace:
         min: "0.01"
         max: "0.03"
-    #- name: num-layers
-    #  parameterType: int
-    #  feasibleSpace:
-    #    min: "2"
-    #    max: "5"
-    #- name: optimizer
-    #  parameterType: categorical
-    #  feasibleSpace:
-    #    list:
-    #      - sgd
-    #      - adam
-    #      - ftrl
+    - name: batch-size
+      parameterType: int
+      feasibleSpace:
+        min: "16"
+        step: "16"
+        max: "128"
+    - name: optimizer
+      parameterType: categorical
+      feasibleSpace:
+        list:
+          - sgd
+          - adam
+          - adagrad
+          - adadelta
   trialTemplate:
     primaryContainerName: training-container
     trialParameters:
       - name: learningRate
         description: Learning rate for the training model
         reference: lr
-        #reference: learning_rate
+      - name: batchSize
+        description: Batch size of training data
+        reference: batch-size
     #  - name: numberLayers
     #    description: Number of training model layers
     #    reference: num-layers
-    #  - name: optimizer
-    #    description: Training model optimizer (sdg, adam or ftrl)
-    #    reference: optimizer
+      - name: optimizer
+        description: Training model optimizer (sdg, adam or ftrl)
+        reference: optimizer
     retain: true # test for metics overview per tria:q
     trialSpec:
       apiVersion: batch/v1
@@ -60,12 +64,21 @@ spec:
             annotations: 
               sidecar.istio.io/inject: "false"
           spec:
+            volumes:
+              - name: data-vol
+                nfs:
+                  server: "${NFS_CLUSTER_IP}"
+                  path: /data
+                  #readOnly: false
+              - name: varlog
+                emptyDir:
+                  sizeLimit: 500Mi
             imagePullSecrets:
               - name: image-registry-secret
+            restartPolicy: Never
             containers:
               - name: training-container
-                image: image-registry:5000/rs-mdl
-                #image: docker.io/kubeflowkatib/mxnet-mnist:latest
+                image: image-registry:5000/rs-models
                 command:
                   #- "python3"
                   #- "/opt/mxnet-mnist/mnist.py"
@@ -75,15 +88,20 @@ spec:
                   #- "--optimizer=${trialParameters.optimizer}"
                   #- "--gpus=0"
                   #--------------------
-                  - "./models"
-                  - "mlp"
+                  - "./app/models"
+                  - "vit"
+                  - "--load-data data/processed/SMA_10"
                   - "--lr=${trialParameters.learningRate}"
+                  - "--batch-size=${trialParameters.batchSize}"
+                  - "--optim=${trialParameters.optimizer}"
+                  - "--epochs=5"
                 resources:
-                  requests:
-                    memory: "500Mi"
-                    cpu: "400m"
                   limits:
-                    memory: "1Gi"
-                    cpu: "4"
-                    #nvidia.com/gpu: 1
-            restartPolicy: Never
+                    memory: "3Gi"
+                    cpu: "2"
+                    nvidia.com/gpu: 1
+                volumeMounts:
+                  - name: data-vol
+                    mountPath: /data
+                  - name: varlog
+                    mountPath: /var/log
