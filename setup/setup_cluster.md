@@ -193,16 +193,17 @@ Version `1.26.9-00` is used because of KubeFlow requirements.
 Following [step 1-3 in this guide](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management)
 ``` 
 # Download Google Cloud public signing key
-curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 # Adding Kubernetes apt repository
-echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.26/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 # Update apt
 sudo apt update
 
 # Installing kubernetes and tools
-sudo apt install kubelet=1.26.9-00 kubeadm=1.26.9-00 kubectl=1.26.9-00
+#sudo apt install kubelet=1.26.9-00 kubeadm=1.26.9-00 kubectl=1.26.9-00
+sudo apt install kubelet kubeadm kubectl
 
 # Lock packages for version control
 sudo apt-mark hold kubelet kubeadm kubectl
